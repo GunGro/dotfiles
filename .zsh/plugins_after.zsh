@@ -30,3 +30,11 @@ if [[ "$(tput colors)" == "256" ]]; then
     ZSH_HIGHLIGHT_STYLES[assign]=fg=037
 fi
 
+
+
+
+# dircolors
+
+if [[ "$(tput colors)" == "256" ]]; then
+    eval $(dircolors =(cat ~/.zsh/plugins/dircolors-solarized/dircolors.256dark))
+fi
