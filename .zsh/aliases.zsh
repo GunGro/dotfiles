@@ -8,7 +8,8 @@ alias ll='ls -lahF'
 alias la='ls -AF'
 alias l='ls'
 
-
+# clear
+alias c='clear'
 # git
 alias gag='git exec ag'
 
