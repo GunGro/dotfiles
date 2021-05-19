@@ -13,3 +13,6 @@ source ~/.zsh/prompt.zsh
 # External settings 
 source ~/.zsh/external.zsh
 
+# External plugins (initialized after)
+source ~/.zsh/plugins_after.zsh
+
