@@ -7,11 +7,11 @@ source ~/.zsh/settings.zsh
 # Aliases
 source ~/.zsh/aliases.zsh
 
-# Custom prompt 
-source ~/.zsh/prompt.zsh
-
 # External settings 
 source ~/.zsh/external.zsh
+
+# Custom prompt 
+source ~/.zsh/prompt.zsh
 
 # External plugins (initialized after)
 source ~/.zsh/plugins_after.zsh

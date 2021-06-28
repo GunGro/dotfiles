@@ -4,7 +4,7 @@
 
 source ~/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
 if [[ "$(tput colors)" == "256" ]]; then
     ZSH_HIGHLIGHT_STYLES[default]=none
@@ -36,5 +36,5 @@ fi
 # dircolors
 
 if [[ "$(tput colors)" == "256" ]]; then
-    eval $(dircolors =(cat ~/.zsh/plugins/dircolors-solarized/dircolors.256dark))
+    eval `dircolors ~/.zsh/plugins/dircolors-solarized/dircolors.256dark`
 fi
