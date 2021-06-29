@@ -15,25 +15,7 @@ FX=(
 )
 
 for color in {000..255}; do
-    FG[$color]="%{[38;5;${color}m%}"
-    BG[$color]="%{[48;5;${color}m%}"
+    FG[$color]="\033[38;5;${color}m"
+    BG[$color]="\033[48;5;${color}m"
 done
 
-# Show all 256 colors with color number
-function spectrum() {
-    local cols=4
-    if [[ "${1}" != "" ]]; then
-        cols=${1}
-    fi
-    local ctr=1
-    for code in {000..255}; do
-        print -P -n -- "$code: %F{$code}Test%f"
-        if [[ "$(expr ${ctr} % ${cols})" == "0" ]]; then
-            print # newline
-        else
-            print -n -- " " # gap
-        fi
-        ctr=$(expr ${ctr} + 1)
-    done
-    print # newline
-}

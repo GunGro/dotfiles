@@ -12,14 +12,14 @@
 setopt prompt_subst
 
 # Load color variables to make it easier to color things
-autoload -Uz colors && colors 
+autoload -U colors && colors
 
 # Make using 256 colors easier
 if [[ "$(tput colors)" == "256" ]]; then
     source ~/.zsh/plugins/spectrum.zsh
+    
     # change default colors
     fg[red]=$FG[160]
-    echo $fg[red]
     fg[green]=$FG[064]
     fg[yellow]=$FG[136]
     fg[blue]=$FG[033]
@@ -365,3 +365,5 @@ function TRAPUSR1() {
     # redisplay
     zle && zle reset-prompt
 }
+
+
