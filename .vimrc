@@ -1,3 +1,5 @@
+" Set the leader to space
+let mapleader = " "
 " Comments in Vimscript start with a `"`.
 set nocompatible " not vi compatible
 
@@ -117,3 +119,23 @@ vnoremap <Left>  <ESC>:echoe "Use h"<CR>
 vnoremap <Right> <ESC>:echoe "Use l"<CR>
 vnoremap <Up>    <ESC>:echoe "Use k"<CR>
 vnoremap <Down>  <ESC>:echoe "Use j"<CR>
+
+
+"--------------------
+" Plugin settings 
+"--------------------
+
+" ctrlp
+nnoremap ; :CtrlPBuffer<CR>
+let g:ctrlp_switch_buffer = 0
+let g:ctrlp_show_hidden = 1
+
+"Syntastic
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_wq = 0
+
+nnoremap <Leader>s :SyntasticCheck<CR>
+nnoremap <Leader>r :SyntasticReset<CR>
+nnoremap <Leader>i :SyntasticInfo<CR>
+nnoremap <Leader>m :SyntasticToggleMode<CR>
