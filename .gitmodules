@@ -43,3 +43,6 @@
 [submodule ".vim/pack/vendor/start/YouCompleteMe"]
 	path = .vim/pack/vendor/start/YouCompleteMe
 	url = git@github.com:ycm-core/YouCompleteMe.git
+[submodule ".vim/pack/vendor/start/vim-snippets"]
+	path = .vim/pack/vendor/start/vim-snippets
+	url = git@github.com:honza/vim-snippets
