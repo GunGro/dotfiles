@@ -37,3 +37,9 @@
 [submodule ".vim/pack/vendor/start/vim-rainbow"]
 	path = .vim/pack/vendor/start/vim-rainbow
 	url = git@github.com:frazrepo/vim-rainbow
+[submodule ".vim/pack/vendor/start/ultisnips"]
+	path = .vim/pack/vendor/start/ultisnips
+	url = git@github.com:SirVer/ultisnips.git
+[submodule ".vim/pack/vendor/start/YouCompleteMe"]
+	path = .vim/pack/vendor/start/YouCompleteMe
+	url = git@github.com:ycm-core/YouCompleteMe.git
