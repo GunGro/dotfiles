@@ -34,3 +34,6 @@
 [submodule ".vim/pack/vendor/start/vim-tmux"]
 	path = .vim/pack/vendor/start/vim-tmux
 	url = git@github.com:tmux-plugins/vim-tmux.git
+[submodule ".vim/pack/vendor/start/vim-rainbow"]
+	path = .vim/pack/vendor/start/vim-rainbow
+	url = git@github.com:frazrepo/vim-rainbow
