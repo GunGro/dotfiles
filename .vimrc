@@ -130,7 +130,7 @@ nnoremap ; :CtrlPBuffer<CR>
 let g:ctrlp_switch_buffer = 0
 let g:ctrlp_show_hidden = 1
 
-"Syntastic
+" Syntastic
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_wq = 0
@@ -139,3 +139,6 @@ nnoremap <Leader>s :SyntasticCheck<CR>
 nnoremap <Leader>r :SyntasticReset<CR>
 nnoremap <Leader>i :SyntasticInfo<CR>
 nnoremap <Leader>m :SyntasticToggleMode<CR>
+
+" vim rainbow
+au FileType python,c,cpp call rainbow#load()
