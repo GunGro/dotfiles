@@ -3,3 +3,5 @@
 	name = Gunnar G. Grotmol
 [core]
 	editor = vim
+[alias]
+	root = rev-parse --show-toplevel
