@@ -142,3 +142,9 @@ nnoremap <Leader>m :SyntasticToggleMode<CR>
 
 " vim rainbow
 au FileType python,c,cpp call rainbow#load()
+
+" Ultisnips
+
+let g:UltisnipsExpandTrigger="<S-t>"
+let g:UltisnipsJumpForwardTrigger="<S-f>"
+let g:UltisnipsJumpBackwardTrigger="<S-b>"
