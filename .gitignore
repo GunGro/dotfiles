@@ -2,3 +2,7 @@
 
 # .zsh
 .zsh/local_changes.zsh
+
+# YouCompleteMe
+.vim/pack/vendor/start/YouCompleteMe
+
