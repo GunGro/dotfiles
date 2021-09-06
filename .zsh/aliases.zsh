@@ -16,3 +16,8 @@ alias gag='git exec ag'
 # shutoff/exit shortcuts
 alias s='shutdown -h'
 alias e='exit'
+
+
+# git root
+alias cdgr='cd $(git root)'
+alias startethminer="./ethminer/bin/ethminer -P stratum1+tcp://MainStation@ethash.poolbinance.com:1800"

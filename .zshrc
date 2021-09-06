@@ -16,3 +16,8 @@ source ~/.zsh/prompt.zsh
 # External plugins (initialized after)
 source ~/.zsh/plugins_after.zsh
 
+# local changes
+if [ -f "$HOME/.zsh/local_changes.zsh" ]; then
+    source ~/.zsh/local_changes.zsh
+fi
+
