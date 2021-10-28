@@ -8,7 +8,9 @@ source ~/.zsh/settings.zsh
 source ~/.zsh/aliases.zsh
 
 # External settings 
-source ~/.zsh/external.zsh
+if [ -f "$HOME/.zsh/external.zsh" ]; then
+    source ~/.zsh/external.zsh
+fi
 
 # Custom prompt 
 source ~/.zsh/prompt.zsh
