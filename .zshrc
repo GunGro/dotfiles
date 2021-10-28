@@ -7,6 +7,12 @@ source ~/.zsh/settings.zsh
 # Aliases
 source ~/.zsh/aliases.zsh
 
+# local aliases
+if [ -f "$HOME/.zsh/local_aliases.zsh" ]; then
+    source ~/.zsh/local_aliases.zsh
+fi
+
+
 # External settings 
 if [ -f "$HOME/.zsh/external.zsh" ]; then
     source ~/.zsh/external.zsh
