@@ -33,3 +33,4 @@ export EDITOR=vim
 bindkey -v
 
 disable r
+unsetopt BEEP
