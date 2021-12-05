@@ -4,16 +4,19 @@ source ~/.zsh/plugins_before.zsh
 # Settings
 source ~/.zsh/settings.zsh
 
-# Aliases
-source ~/.zsh/aliases.zsh
+# Aliases for all shells
+source ~/.shell/aliases.sh
+
+# Functions for all shells
+source ~/.shell/functions.sh
 
 # local aliases
-if [ -f "$HOME/.zsh/local_aliases.zsh" ]; then
+if [ -f "$HOME/.shell/local_aliases.zsh" ]; then
     source ~/.zsh/local_aliases.zsh
 fi
 
 
-# External settings 
+# External zsh settings like conda 
 if [ -f "$HOME/.zsh/external.zsh" ]; then
     source ~/.zsh/external.zsh
 fi

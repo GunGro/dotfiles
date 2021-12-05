@@ -148,3 +148,7 @@ au FileType python,c,cpp call rainbow#load()
 let g:UltisnipsExpandTrigger="<S-t>"
 let g:UltisnipsJumpForwardTrigger="<S-f>"
 let g:UltisnipsJumpBackwardTrigger="<S-b>"
+
+" argwrap 
+nnoremap <silent> <leader>a :ArgWrap<CR>
+
