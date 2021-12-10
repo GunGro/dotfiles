@@ -11,7 +11,7 @@ source ~/.shell/aliases.sh
 source ~/.shell/functions.sh
 
 # local aliases
-if [ -f "$HOME/.shell/local_aliases.zsh" ]; then
+if [ -f "$HOME/.zsh/local_aliases.zsh" ]; then
     source ~/.zsh/local_aliases.zsh
 fi
 
