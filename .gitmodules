@@ -43,6 +43,6 @@
 [submodule "vim/pack/vendor/start/vim-tmux"]
 	path = vim/pack/vendor/start/vim-tmux
 	url = git@github.com:tmux-plugins/vim-tmux.git
-[submodule "vim/other_plugins/YouCompleteMe"]
-	path = vim/other_plugins/YouCompleteMe
+[submodule "vim/pack/vendor/start/YouCompleteMe"]
+	path = vim/pack/vendor/start/YouCompleteMe
 	url = git@github.com:ycm-core/YouCompleteMe.git
