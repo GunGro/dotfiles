@@ -25,6 +25,7 @@ fi
 
 if [ -f "$HOME/.bash/local_functions.bash" ]; then
     source ~/.bash/local_functions.bash
+fi
 
 # Custom prompt 
 source ~/.bash/prompt.bash
@@ -40,4 +41,5 @@ fi
 if [ -f "$HOME/.bash/local_changes.bash" ]; then
     source ~/.bash/local_changes.bash
 fi
+
 
