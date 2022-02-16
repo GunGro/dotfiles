@@ -46,3 +46,6 @@
 [submodule "vim/pack/vendor/start/YouCompleteMe"]
 	path = vim/pack/vendor/start/YouCompleteMe
 	url = git@github.com:ycm-core/YouCompleteMe.git
+[submodule "shell/plugins/dircolors-solarized"]
+	path = shell/plugins/dircolors-solarized
+	url = git@github.com:seebi/dircolors-solarized.git

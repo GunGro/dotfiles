@@ -7,6 +7,10 @@ if [ ! -f "$SCRIPTPATH/shell/local_aliases.sh" ]; then
     touch "$SCRIPTPATH/shell/local_aliases.sh"
 fi
 
+if [ ! -f "$SCRIPTPATH/shell/local_functions.sh" ]; then
+    touch "$SCRIPTPATH/shell/local_functions.sh"
+fi
+
 if [ ! -f "$SCRIPTPATH/shell/local_changes.sh" ]; then
     touch "$SCRIPTPATH/shell/local_changes.sh"
 fi
@@ -15,8 +19,24 @@ if [ ! -f "$SCRIPTPATH/zsh/local_aliases.zsh" ]; then
     touch "$SCRIPTPATH/zsh/local_aliases.zsh"
 fi
 
+if [ ! -f "$SCRIPTPATH/zsh/local_functions.zsh" ]; then
+    touch "$SCRIPTPATH/zsh/local_functions.zsh"
+fi
+
 if [ ! -f "$SCRIPTPATH/zsh/local_changes.zsh" ]; then
     touch "$SCRIPTPATH/zsh/local_changes.zsh"
+fi
+
+if [ ! -f "$SCRIPTPATH/bash/local_aliases.bash" ]; then
+    touch "$SCRIPTPATH/bash/local_aliases.bash"
+fi
+
+if [ ! -f "$SCRIPTPATH/bash/local_functions.bash" ]; then
+    touch "$SCRIPTPATH/bash/local_functions.bash"
+fi
+
+if [ ! -f "$SCRIPTPATH/bash/local_changes.bash" ]; then
+    touch "$SCRIPTPATH/bash/local_changes.bash"
 fi
 
 if [ ! -f "$SCRIPTPATH/local_gitconfig" ]; then
