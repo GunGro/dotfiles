@@ -11,19 +11,20 @@ source ~/.shell/aliases.sh
 source ~/.shell/functions.sh
 
 # local aliases
-if [ -f "$HOME/.shell/local_aliases.zsh" ]; then
-    source ~/.shell/local_aliases.zsh
+if [ -f "$HOME/.shell/local_aliases.sh" ]; then
+    source ~/.shell/local_aliases.sh
 fi
 
 if [ -f "$HOME/.zsh/local_aliases.zsh" ]; then
     source ~/.zsh/local_aliases.zsh
 fi
 
-
-# External zsh settings like conda 
-if [ -f "$HOME/.zsh/external.zsh" ]; then
-    source ~/.zsh/external.zsh
+if [ -f "$HOME/.shell/local_functions.sh" ]; then
+    source ~/.shell/local_functions.sh
 fi
+
+if [ -f "$HOME/.zsh/local_functions.zsh" ]; then
+    source ~/.zsh/local_functions.zsh
 
 # Custom prompt 
 source ~/.zsh/prompt.zsh
@@ -32,6 +33,10 @@ source ~/.zsh/prompt.zsh
 source ~/.zsh/plugins_after.zsh
 
 # local changes
+if [ -f "$HOME/.shell/local_changes.sh" ]; then
+    source ~/.shell/local_changes.sh
+fi
+
 if [ -f "$HOME/.zsh/local_changes.zsh" ]; then
     source ~/.zsh/local_changes.zsh
 fi

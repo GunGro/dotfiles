@@ -1,10 +1,12 @@
 # files that are supposed to only be placed locally
-zsh/external.zsh
 zsh/local_changes.zsh
+shell/local_changes.sh
 zsh/local_aliases.zsh
-zsh/external.zsh
+shell/local_aliases.sh
+zsh/local_functions.zsh
+shell/local_functions.sh
 
-.gitconfig
+local_gitconfig
 # histfile
 vim/.netrwhist
 

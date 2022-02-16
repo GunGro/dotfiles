@@ -2,6 +2,29 @@
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
+
+if [ ! -f "$SCRIPTPATH/shell/local_aliases.sh" ]; then
+    touch "$SCRIPTPATH/shell/local_aliases.sh"
+fi
+
+if [ ! -f "$SCRIPTPATH/shell/local_changes.sh" ]; then
+    touch "$SCRIPTPATH/shell/local_changes.sh"
+fi
+
+if [ ! -f "$SCRIPTPATH/zsh/local_aliases.zsh" ]; then
+    touch "$SCRIPTPATH/zsh/local_aliases.zsh"
+fi
+
+if [ ! -f "$SCRIPTPATH/zsh/local_changes.zsh" ]; then
+    touch "$SCRIPTPATH/zsh/local_changes.zsh"
+fi
+
+if [ ! -f "$SCRIPTPATH/local_gitconfig" ]; then
+    touch "$SCRIPTPATH/local_gitconfig"
+fi
+
+# Add symlinks
+
 for FILE in "zsh" "zshrc" "bash" "bashrc" "shell" "vim" "vimrc" "tmux.conf" "condarc"
 do
 	if [ -e "$HOME/.$FILE" ] || [ -L "$HOME/.$FILE" ]
@@ -38,8 +61,8 @@ if [[ $REPLY =~ ^[Yy]$ ]] || [ -z $REPLY ]
 then
     echo "running 'git config --global --replace-all  include.path $SCRIPTPATH/gitconfig'"
     git config --global --replace-all include.path "$SCRIPTPATH/gitconfig"
-    echo "running 'git config --global --add include.path $SCRIPTPATH/gitconfig_local'"
-    git config --global --add include.path "$SCRIPTPATH/gitconfig_local"
+    echo "running 'git config --global --add include.path $SCRIPTPATH/local_gitconfig'"
+    git config --global --add include.path "$SCRIPTPATH/local_gitconfig"
 fi
 
 # Fix YouCompleteME
@@ -61,6 +84,3 @@ then
 else
     echo "Did nothing"
 fi
-
-
-
