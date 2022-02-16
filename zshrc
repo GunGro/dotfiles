@@ -25,6 +25,7 @@ fi
 
 if [ -f "$HOME/.zsh/local_functions.zsh" ]; then
     source ~/.zsh/local_functions.zsh
+fi
 
 # Custom prompt 
 source ~/.zsh/prompt.zsh
