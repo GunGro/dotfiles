@@ -4,9 +4,6 @@
 [submodule "zsh/plugins/zsh-syntax-highlighting"]
 	path = zsh/plugins/zsh-syntax-highlighting
 	url = git@github.com:zsh-users/zsh-syntax-highlighting.git
-[submodule "zsh/plugins/dircolors-solarized"]
-	path = zsh/plugins/dircolors-solarized
-	url = git@github.com:seebi/dircolors-solarized.git
 [submodule "vim/pack/vendor/start/ctrlp.vim"]
 	path = vim/pack/vendor/start/ctrlp.vim
 	url = git@github.com:kien/ctrlp.vim.git
