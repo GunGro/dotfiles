@@ -2,6 +2,7 @@
 zsh/external.zsh
 zsh/local_changes.zsh
 zsh/local_aliases.zsh
+zsh/external.zsh
 
 .gitconfig
 # histfile
