@@ -1,12 +1,9 @@
 # files that are supposed to only be placed locally
-.zsh/external.zsh
-.zsh/local_changes.zsh
-.zsh/local_aliases.zsh
+zsh/external.zsh
+zsh/local_changes.zsh
+zsh/local_aliases.zsh
 
 .gitconfig
 # histfile
-.vim/.netrwhist
-
-# YouCompleteMe
-.vim/pack/vendor/start/YouCompleteMe
+vim/.netrwhist
 
