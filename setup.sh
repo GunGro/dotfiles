@@ -45,7 +45,7 @@ fi
 
 # Add symlinks
 
-for FILE in "zsh" "zshrc" "bash" "bashrc" "shell" "vim" "vimrc" "tmux.conf" "condarc" "gitignore_global"
+for FILE in "zsh" "zshrc" "bash" "bashrc" "shell" "vim" "vimrc" "tmux.conf" "condarc" "gitignore_global" "inputrc"
 do
 	if [ -e "$HOME/.$FILE" ] || [ -L "$HOME/.$FILE" ]
 	then

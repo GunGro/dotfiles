@@ -4,3 +4,5 @@ SAVEHIST=$HISTSIZE
 shopt -s histappend # append to history file
 
 export EDITOR=vim
+
+set -o vi
