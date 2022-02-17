@@ -141,7 +141,11 @@ nnoremap <Leader>i :SyntasticInfo<CR>
 nnoremap <Leader>m :SyntasticToggleMode<CR>
 
 " vim rainbow
-au FileType python,c,cpp call rainbow#load()
+augroup rainbow_lisp
+  autocmd!
+  autocmd FileType python,c,cpp RainbowParentheses
+augroup END
+"au FileType python,c,cpp call RainbowParentheses
 
 " Ultisnips
 
