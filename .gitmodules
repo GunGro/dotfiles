@@ -46,3 +46,6 @@
 [submodule "shell/plugins/dircolors-solarized"]
 	path = shell/plugins/dircolors-solarized
 	url = git@github.com:seebi/dircolors-solarized.git
+[submodule "zsh/plugins/conda-zsh-completion"]
+	path = zsh/plugins/conda-zsh-completion
+	url = https://github.com/esc/conda-zsh-completion
