@@ -1,106 +1,50 @@
 #! bin/env bash
 
-SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+set -euo pipefail
 
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if [ ! -f "$SCRIPTPATH/shell/local_aliases.sh" ]; then
-    touch "$SCRIPTPATH/shell/local_aliases.sh"
-fi
+echo "==> Dotfiles dir: $DOTFILES"
 
-if [ ! -f "$SCRIPTPATH/shell/local_functions.sh" ]; then
-    touch "$SCRIPTPATH/shell/local_functions.sh"
-fi
+sudo apt update && sudo apt install -y \
+    neovim \
+    clang \
+    clang-format \
+    cmake \
+    ninja-build \
+    gdb \
+    valgrind \
+    git \
+    curl \
+    wget \
+    zsh \
+    tmux \
+    ripgrep \
+    fd-find \
+    fzf \
+    make \
+    python3 \
+    python3-pip
 
-if [ ! -f "$SCRIPTPATH/shell/local_changes.sh" ]; then
-    touch "$SCRIPTPATH/shell/local_changes.sh"
-fi
+# Neovim config -------------------------------------------------
 
-if [ ! -f "$SCRIPTPATH/zsh/local_aliases.zsh" ]; then
-    touch "$SCRIPTPATH/zsh/local_aliases.zsh"
-fi
+echo "==> Linking Neovim config..."
+mkdir -p "$HOME/.config"
+ln -sf "$DOTFILES/nvim" "$HOME/.config/nvim"
 
-if [ ! -f "$SCRIPTPATH/zsh/local_functions.zsh" ]; then
-    touch "$SCRIPTPATH/zsh/local_functions.zsh"
-fi
+# Shell configs ------------------------------------------------
 
-if [ ! -f "$SCRIPTPATH/zsh/local_changes.zsh" ]; then
-    touch "$SCRIPTPATH/zsh/local_changes.zsh"
-fi
+echo "==> Linking shell configs..."
+ln -sf "$DOTFILES/zshrc"   "$HOME/.zshrc"
+ln -sf "$DOTFILES/bashrc"  "$HOME/.bashrc"
+ln -sf "$DOTFILES/tmux.conf" "$HOME/.tmux.conf"
 
-if [ ! -f "$SCRIPTPATH/bash/local_aliases.bash" ]; then
-    touch "$SCRIPTPATH/bash/local_aliases.bash"
-fi
+# Git configs ---------------------------------
 
-if [ ! -f "$SCRIPTPATH/bash/local_functions.bash" ]; then
-    touch "$SCRIPTPATH/bash/local_functions.bash"
-fi
+echo "==> Linking git config..."
+ln -sf "$DOTFILES/gitconfig"        "$HOME/.gitconfig"
+ln -sf "$DOTFILES/gitignore_global" "$HOME/.gitignore_global"
 
-if [ ! -f "$SCRIPTPATH/bash/local_changes.bash" ]; then
-    touch "$SCRIPTPATH/bash/local_changes.bash"
-fi
+# Done ---------------------
 
-if [ ! -f "$SCRIPTPATH/local_gitconfig" ]; then
-    touch "$SCRIPTPATH/local_gitconfig"
-fi
-
-# Add symlinks
-
-for FILE in "zsh" "zshrc" "bash" "bashrc" "shell" "vim" "vimrc" "tmux.conf" "condarc" "gitignore_global" "inputrc"
-do
-	if [ -e "$HOME/.$FILE" ] || [ -L "$HOME/.$FILE" ]
-	then
-		read -p "There already exist a .$FILE file in home. Replace with symlink? ([y]/n)" -n 1 -r
-        if [[ ! -z $REPLY ]]
-        then
-            echo
-        fi
-		if [[ $REPLY =~ ^[Yy]$ ]] || [ -z $REPLY ]
-		then
-			echo "removed $HOME/.$FILE and replaced with symlink"
-			rm "$HOME/.$FILE";
-			ln -s "$SCRIPTPATH/$FILE" "$HOME/.$FILE";
-		else
-			echo "Did nothing"
-		fi
-	else 
-		if ln -s "$SCRIPTPATH/$FILE" "$HOME/.$FILE";
-		then
-			echo "created symlink from $HOME/.$FILE to $SCRIPTPATH/$FILE"
-		fi
-	fi
-done
-
-#  Fix gitconfig settings if desired
-
-read -p "Do you want to include the custom gitconfig settings in your global gitconfig ([y]/n)" -n 1 -r
-if [[ ! -z $REPLY ]]
-then
-    echo
-fi
-if [[ $REPLY =~ ^[Yy]$ ]] || [ -z $REPLY ]
-then
-    echo "running 'git config --global --replace-all  include.path $SCRIPTPATH/gitconfig'"
-    git config --global --replace-all include.path "$SCRIPTPATH/gitconfig"
-    echo "running 'git config --global --add include.path $SCRIPTPATH/local_gitconfig'"
-    git config --global --add include.path "$SCRIPTPATH/local_gitconfig"
-fi
-
-# Fix YouCompleteME
-
-read -p "Do you want to set up YouCompleteME ([y]/n)" -n 1 -r
-if [[ ! -z $REPLY ]]
-then
-    echo
-fi
-if [[ $REPLY =~ ^[Yy]$ ]] || [ -z $REPLY ]
-then
-    echo "running 'sudo apt install build-essential cmake vim-nox python3-dev'"
-    sudo apt install build-essential cmake vim-nox python3-dev
-    echo "running 'sudo apt install mono-complete golang nodejs default-jdk npm'"
-    sudo apt install mono-complete golang nodejs default-jdk npm
-    cd "$SCRIPTPATH/vim/pack/vendor/start/YouCompleteMe"
-    echo "running 'python3 install.py --all'"
-    python3 install.py --all
-else
-    echo "Did nothing"
-fi
+echo "==> Setup Complete"
