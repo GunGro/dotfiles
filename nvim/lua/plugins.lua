@@ -1,31 +1,57 @@
 return {
 
-	-- ─── Colorscheme: Solarized ───────────────────────────────────────────────
+	-- ─── Colorscheme: Catppuccin ────────────────────────────────────────────────
 	{
-		"ishan9299/nvim-solarized-lua",
+		"catppuccin/nvim",
+		name = "catppuccin",
 		lazy = false,
 		priority = 1000,
 		config = function()
-			vim.o.background = "dark"
-			vim.cmd("colorscheme solarized")
+			require("catppuccin").setup({
+				flavour = "mocha", -- mocha (darkest), macchiato, frappe, latte (light)
+				transparent_background = false,
+				integrations = {
+					cmp = true,
+					gitsigns = true,
+					telescope = true,
+					treesitter = true,
+					native_lsp = {
+						enabled = true,
+						underlines = {
+							errors = { "undercurl" },
+							warnings = { "undercurl" },
+						},
+					},
+					dap = { enabled = true, enable_ui = true },
+					mason = true,
+					which_key = true,
+					indent_blankline = { enabled = true },
+				},
+			})
+			vim.cmd.colorscheme("catppuccin")
 		end,
 	},
 
-	-- ─── Statusline: Lightline ────────────────────────────────────────────────
+	-- ─── Statusline: Lualine ────────────────────────────────────────────────────
 	{
-		"itchyny/lightline.vim",
-		lazy = false,
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			vim.g.lightline = {
-				colorscheme = "solarized",
-				active = {
-					left = { { "mode", "paste" }, { "gitbranch", "readonly", "filename", "modified" } },
-					right = { { "lineinfo" }, { "percent" }, { "fileformat", "fileencoding", "filetype" } },
+			require("lualine").setup({
+				options = {
+					theme = require("catppuccin.utils.lualine")("mocha"),
+					component_separators = "|",
+					section_separators = "",
 				},
-				component_function = {
-					gitbranch = "FugitiveHead",
+				sections = {
+					lualine_a = { "mode" },
+					lualine_b = { "branch", "diff", "diagnostics" },
+					lualine_c = { "filename" },
+					lualine_x = { "filetype" },
+					lualine_y = { "progress" },
+					lualine_z = { "location" },
 				},
-			}
+			})
 		end,
 	},
 
