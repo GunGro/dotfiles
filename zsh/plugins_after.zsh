@@ -1,8 +1,12 @@
 # External plugins (initialized after)
 
-# Syntax highlighting
+# dircolors
 
-source ~/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+if [[ "$(tput colors)" == "256" ]]; then
+    eval `dircolors ~/.config/shell/plugins/dircolors-solarized/dircolors.256dark`
+fi
+
+# Syntax highlighting
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
@@ -31,10 +35,6 @@ if [[ "$(tput colors)" == "256" ]]; then
 fi
 
 
+source ~/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 
-# dircolors
-
-if [[ "$(tput colors)" == "256" ]]; then
-    eval `dircolors ~/.shell/plugins/dircolors-solarized/dircolors.256dark`
-fi

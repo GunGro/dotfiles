@@ -55,7 +55,7 @@ vim.opt.termguicolors = true
 vim.opt.signcolumn = "yes"
 vim.opt.colorcolumn = "100"
 vim.opt.laststatus = 2
-vim.opt.showmode = false -- lightline handles this
+vim.opt.showmode = false -- lualine got it
 
 -- Clipboard
 vim.opt.clipboard = "unnamedplus"

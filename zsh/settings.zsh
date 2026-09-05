@@ -35,7 +35,3 @@ bindkey -v
 
 disable r
 unsetopt BEEP
-
-# conda autocomplete
-fpath+=~/.zsh/plugins/conda-zsh-completion
-compinit conda

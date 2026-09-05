@@ -20,13 +20,28 @@ sudo apt-get install -y \
     clang clang-format clangd \
     lldb \
     tmux \
-    python3 python3-pip pipx \
+    python3 python3-pip python3-venv pipx \
     ripgrep fd-find fzf bat \
     nodejs npm \
     neovim \
     zsh \
-    xclip \
-    vim
+    xclip wl-clipboard vim
+
+# Neovim version check: config uses vim.lsp.config / vim.lsp.enable, requiring >= 0.11.
+if command -v nvim >/dev/null 2>&1; then
+    nvim_major_minor="$(nvim --version | head -n1 | sed -E 's/^NVIM v([0-9]+\.[0-9]+).*/\1/')"
+
+    case "$nvim_major_minor" in
+    0.11 | 0.12 | 0.13 | 0.14 | 0.15 | 1.*)
+        echo "==> Neovim version OK: $(nvim --version | head -n1)"
+        ;;
+    *)
+        echo "ERROR: Neovim >= 0.11 is required, but found: $(nvim --version | head -n1)" >&2
+        echo "Install a newer Neovim before using this config." >&2
+        exit 1
+        ;;
+    esac
+fi
 
 # bat & batcat
 if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
@@ -52,11 +67,14 @@ source "$HOME/.cargo/env" 2>/dev/null || true
 
 if ! command -v typos &>/dev/null; then
     echo "==> Installing typos (prebuilt binary)..."
-    TYPOS_VER="1.28.2"
+    tmpdir="$(mktemp -d)"
+    trap 'rm -rf "$tmpdir"' EXIT
+
     curl -fsSL \
         "https://github.com/crate-ci/typos/releases/download/v${TYPOS_VER}/typos-v${TYPOS_VER}-x86_64-unknown-linux-musl.tar.gz" |
-        tar -xz -C "$HOME/.local/bin" ./typos
-    chmod +x "$HOME/.local/bin/typos"
+        tar -xz -C "$tmpdir"
+
+    install -m 0755 "$tmpdir/typos" "$HOME/.local/bin/typos"
 fi
 
 # ─── aichat (AI CLI tool, used in shell and tmux) ────────────────────────────
@@ -78,7 +96,7 @@ if [ ! -f "$AICHAT_CONF_DIR/config.yaml" ]; then
 
 clients:
   - type: openai
-    api_key: YOUR_API_KEY_HERE   # replace or set OPENAI_API_KEY env var
+    # api_key: YOUR_API_KEY_HERE   # replace or set OPENAI_API_KEY env var
     # model: gpt-4o              # optional override
 
   # Uncomment for local/offline use with Ollama:

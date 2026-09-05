@@ -8,7 +8,7 @@ simply run `bash path_to_repository/setup.bash`
 
 # Includes
 A prompt and aliases for zsh and plugins for completions in zsh
-Configuration and plugins for vim
+Configuration and plugins for Neovim
 Configuration for tmux
 
 

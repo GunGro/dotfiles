@@ -12,7 +12,7 @@ source ~/.config/shell/functions.sh
 
 # local aliases
 if [ -f "$HOME/.config/shell/local_aliases.sh" ]; then
-    source ~/.shell/local_aliases.sh
+    source ~/.config/shell/local_aliases.sh
 fi
 
 if [ -f "$HOME/.config/zsh/local_aliases.zsh" ]; then
@@ -42,4 +42,5 @@ if [ -f "$HOME/.config/zsh/local_changes.zsh" ]; then
     source ~/.config/zsh/local_changes.zsh
 fi
 
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+path_prepend "$HOME/.cargo/bin"
+path_prepend "$HOME/.local/bin"

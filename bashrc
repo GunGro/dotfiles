@@ -1,4 +1,10 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
+
+case $- in
+*i*) ;;
+*) return ;;
+esac
+
 # External plugins (initialized before)
 
 # Settings
@@ -43,4 +49,5 @@ if [ -f "$HOME/.config/bash/local_changes.bash" ]; then
 fi
 
 . "$HOME/.cargo/env"
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+path_prepend "$HOME/.cargo/bin"
+path_prepend "$HOME/.local/bin"
