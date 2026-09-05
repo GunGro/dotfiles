@@ -1,11 +1,14 @@
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git", "clone", "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", lazypath
-  })
+	vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable",
+		lazypath,
+	})
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -15,54 +18,53 @@ vim.g.maplocalleader = " "
 
 -- ─── Core settings (mirrors your vimrc) ───────────────────────────────────────
 
-vim.opt.compatible    = false
-vim.opt.encoding      = "utf-8"
-vim.opt.number        = true
+vim.opt.compatible = false
+vim.opt.encoding = "utf-8"
+vim.opt.number = true
 vim.opt.relativenumber = true
-vim.opt.cursorline    = true
-vim.opt.scrolloff     = 8
+vim.opt.cursorline = true
+vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
-vim.opt.wrap          = false
+vim.opt.wrap = false
 
 -- Indentation
-vim.opt.tabstop       = 4
-vim.opt.shiftwidth    = 4
-vim.opt.softtabstop   = 4
-vim.opt.expandtab     = true
-vim.opt.smartindent   = true
-vim.opt.autoindent    = true
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+vim.opt.expandtab = true
+vim.opt.autoindent = true
 
 -- Search
-vim.opt.hlsearch      = true
-vim.opt.incsearch     = true
-vim.opt.ignorecase    = true
-vim.opt.smartcase     = true
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
 
 -- Splits
-vim.opt.splitbelow    = true
-vim.opt.splitright    = true
+vim.opt.splitbelow = true
+vim.opt.splitright = true
 
 -- Files
-vim.opt.swapfile      = false
-vim.opt.backup        = false
-vim.opt.undofile      = true
-vim.opt.undodir       = vim.fn.stdpath("data") .. "/undo"
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"
 
 -- Appearance
 vim.opt.termguicolors = true
-vim.opt.signcolumn    = "yes"
-vim.opt.colorcolumn   = "100"
-vim.opt.laststatus    = 2
-vim.opt.showmode      = false  -- lightline handles this
+vim.opt.signcolumn = "yes"
+vim.opt.colorcolumn = "100"
+vim.opt.laststatus = 2
+vim.opt.showmode = false -- lightline handles this
 
 -- Clipboard
-vim.opt.clipboard     = "unnamedplus"
+vim.opt.clipboard = "unnamedplus"
 
 -- ─── Keymaps ──────────────────────────────────────────────────────────────────
 
 local map = function(mode, lhs, rhs, opts)
-  opts = opts or { noremap = true, silent = true }
-  vim.keymap.set(mode, lhs, rhs, opts)
+	opts = opts or { noremap = true, silent = true }
+	vim.keymap.set(mode, lhs, rhs, opts)
 end
 
 -- Window navigation
@@ -96,11 +98,61 @@ map("n", "<leader>fs", ":Telescope lsp_document_symbols<CR>")
 
 -- LSP (set in on_attach, but global fallbacks)
 map("n", "<leader>e", vim.diagnostic.open_float)
-map("n", "[d",        vim.diagnostic.goto_prev)
-map("n", "]d",        vim.diagnostic.goto_next)
+map("n", "[d", vim.diagnostic.goto_prev)
+map("n", "]d", vim.diagnostic.goto_next)
 
 -- ─── Load plugins ─────────────────────────────────────────────────────────────
 
 require("lazy").setup("plugins", {
-  change_detection = { notify = false },
+	change_detection = { notify = false },
 })
+
+-- ─── LSP on_attach (shared across all servers) ──────────────────────────────
+
+local on_attach = function(_, bufnr)
+	local opts = { buffer = bufnr, silent = true }
+	vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+	vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+	vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+	vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+	vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
+	vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
+	vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+end
+
+vim.api.nvim_create_autocmd("LspAttach", {
+	callback = function(args)
+		on_attach(nil, args.buf)
+	end,
+})
+
+-- ─── Shared LSP capabilities (enables full nvim-cmp completion features) ────
+
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+-- ─── clangd ─────────────────────────────────────────────────────────────────
+
+vim.lsp.config("clangd", {
+	capabilities = capabilities,
+	cmd = {
+		"clangd",
+		"--background-index",
+		"--clang-tidy",
+		"--header-insertion=iwyu",
+		"--completion-style=detailed",
+		"--function-arg-placeholders=true",
+	},
+	filetypes = { "c", "cpp", "objc", "objcpp" },
+	root_markers = { "compile_commands.json", "CMakeLists.txt", ".git" },
+})
+vim.lsp.enable("clangd")
+
+-- ─── typos-lsp ──────────────────────────────────────────────────────────────
+
+vim.lsp.config("typos_lsp", {
+	capabilities = capabilities,
+	cmd = { "typos-lsp" },
+	filetypes = { "c", "cpp", "lua", "python", "sh", "markdown", "text" },
+	root_markers = { ".git" },
+})
+vim.lsp.enable("typos_lsp")

@@ -28,11 +28,6 @@ alias ll='ls -lah --color=auto'
 alias la='ls -A --color=auto'
 alias l='ls -CF --color=auto'
 
-# ls aliases
-alias ll='ls -lahF'
-alias la='ls -AF'
-alias l='ls'
-
 # clear
 alias c='clear'
 # git
@@ -48,3 +43,19 @@ alias cdgr='cd $(git root)'
 
 # ssh
 alias sshx="ssh -X"
+
+# AI shortcuts
+alias ai='aichat'
+alias aicode='aichat --role code'    # terse code-focused answers
+
+# Quick review: pipe a file to AI
+# Usage: aireview sim.cpp
+aireview() {
+  cat "$1" | aichat "Review this code for correctness, style, and numerical stability. Be concise."
+}
+
+# Explain last command's output
+# Usage: run a command, then: aiexplain
+aiexplain() {
+  aichat "Explain this terminal output and suggest fixes if needed:" < /dev/stdin
+}

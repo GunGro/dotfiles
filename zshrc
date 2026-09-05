@@ -42,3 +42,4 @@ if [ -f "$HOME/.zsh/local_changes.zsh" ]; then
     source ~/.zsh/local_changes.zsh
 fi
 
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"

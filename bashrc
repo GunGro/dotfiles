@@ -43,3 +43,5 @@ if [ -f "$HOME/.bash/local_changes.bash" ]; then
 fi
 
 
+. "$HOME/.cargo/env"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
