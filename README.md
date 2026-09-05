@@ -3,7 +3,7 @@ A simple dotfiles container.
 
 # Installation
 
-simply run `bash path_to_repository/setup.sh`
+simply run `bash path_to_repository/setup.bash`
 
 
 # Includes

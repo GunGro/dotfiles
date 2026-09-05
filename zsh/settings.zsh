@@ -26,8 +26,9 @@ setopt extendedhistory
 # Time to wait for additional characters in a sequence
 KEYTIMEOUT=1 # corresponds to 10ms
 
-# Use vim as the editor
-export EDITOR=vim
+# Use nvim as the editor
+export EDITOR=nvim
+export VISUAL=nvim
 
 # Use vim style line editing in zsh
 bindkey -v

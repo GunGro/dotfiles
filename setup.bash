@@ -3,7 +3,12 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+mkdir -p "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
 echo "==> Dotfiles dir: $DOTFILES_DIR"
+echo "==> Updating git submodules..."
+git -C "$DOTFILES_DIR" submodule update --init --recursive
 
 # ─── Package dependencies ────────────────────────────────────────────────────
 
@@ -19,7 +24,14 @@ sudo apt-get install -y \
     ripgrep fd-find fzf bat \
     nodejs npm \
     neovim \
+    zsh \
+    xclip \
     vim
+
+# bat & batcat
+if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+    ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+fi
 
 # Debian: fd is installed as fdfind, make an alias
 if command -v fdfind &>/dev/null && ! command -v fd &>/dev/null; then
@@ -112,51 +124,69 @@ fi
 echo "==> Linking dotfiles..."
 
 link() {
-    local src="$DOTFILES_DIR/$1"
+    local rel="$1"
     local dst="$2"
-    mkdir -p "$(dirname "$dst")"
-    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
-        mv "$dst" "${dst}.bak.$(date +%s)"
-        echo "    Backed up existing $dst"
+    local src="$DOTFILES_DIR/$rel"
+    local ts
+
+    if [ ! -e "$src" ]; then
+        echo "ERROR: missing source: $src" >&2
+        return 1
     fi
-    ln -sfn "$src" "$dst"
-    echo "    $dst -> $src"
+
+    mkdir -p "$(dirname "$dst")"
+
+    if [ -L "$dst" ]; then
+        if [ "$(readlink "$dst")" = "$src" ]; then
+            echo "    OK: $dst -> $src"
+            return 0
+        fi
+
+        rm "$dst"
+        echo "    Removed old symlink $dst"
+    elif [ -e "$dst" ]; then
+        ts="$(date +%s)"
+        mv "$dst" "${dst}.bak.${ts}"
+        echo "    Backed up existing $dst -> ${dst}.bak.${ts}"
+    fi
+
+    ln -s "$src" "$dst"
+    echo "    Linked $dst -> $src"
 }
 
-link "nvim" "$HOME/.config/nvim"
-link "vim/vimrc" "$HOME/.vimrc"
 link "bashrc" "$HOME/.bashrc"
 link "zshrc" "$HOME/.zshrc"
 link "inputrc" "$HOME/.inputrc"
 link "condarc" "$HOME/.condarc"
-link "shell" "$HOME/.config/shell"
+
 link "bash" "$HOME/.config/bash"
 link "zsh" "$HOME/.config/zsh"
+link "shell" "$HOME/.config/shell"
+
+link "nvim" "$HOME/.config/nvim"
+link "vim/vimrc" "$HOME/.vimrc"
 link "tmux/.tmux.conf" "$HOME/.tmux.conf"
+
+# Choose one canonical Git config. Prefer git/gitconfig unless you decide otherwise.
 link "git/gitconfig" "$HOME/.gitconfig"
 link "git/gitignore_global" "$HOME/.gitignore_global"
 
-# Source aliases from .bashrc / .zshrc if not already present
-for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [ -f "$rcfile" ] && ! grep -q "aliases.sh" "$rcfile"; then
-        echo "[ -f \"\$HOME/.config/shell/aliases.sh\" ] && source \"\$HOME/.config/shell/aliases.sh\"" >>"$rcfile"
-        echo "    Added aliases.sh source to $rcfile"
-    fi
-done
+# Vim: adjust this if your real file is vim/.vimrc instead.
+if [ -f "$DOTFILES_DIR/vim/vimrc" ]; then
+    link "vim/vimrc" "$HOME/.vimrc"
+elif [ -f "$DOTFILES_DIR/vim/.vimrc" ]; then
+    link "vim/.vimrc" "$HOME/.vimrc"
+else
+    echo "    Skipping Vim: neither vim/vimrc nor vim/.vimrc exists"
+fi
 
-# Add ~/.local/bin and ~/.cargo/bin to PATH if missing
-for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [ -f "$rcfile" ] && ! grep -q '\.local/bin' "$rcfile"; then
-        echo 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"' >>"$rcfile"
-    fi
-done
-
-echo "==> installing tree-sitter-cli"
-TS_VER="0.24.6"
-curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/download/v${TS_VER}/tree-sitter-linux-x64.gz" |
-    gunzip >"$HOME/.local/bin/tree-sitter"
-chmod +x "$HOME/.local/bin/tree-sitter"
-
+if ! command -v tree-sitter &>/dev/null; then
+    echo "==> Installing tree-sitter-cli..."
+    TS_VER="0.24.6"
+    curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/download/v${TS_VER}/tree-sitter-linux-x64.gz" |
+        gunzip >"$HOME/.local/bin/tree-sitter"
+    chmod +x "$HOME/.local/bin/tree-sitter"
+fi
 # ─── TPM: install tmux plugins headlessly ────────────────────────────────────
 
 echo "==> Installing tmux plugins..."
