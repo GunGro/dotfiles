@@ -124,10 +124,17 @@ link() {
 }
 
 link "nvim" "$HOME/.config/nvim"
-link "vim/.vimrc" "$HOME/.vimrc"
-link "shell/aliases.sh" "$HOME/.config/shell/aliases.sh"
+link "vim/vimrc" "$HOME/.vimrc"
+link "bashrc" "$HOME/.bashrc"
+link "zshrc" "$HOME/.zshrc"
+link "inputrc" "$HOME/.inputrc"
+link "condarc" "$HOME/.condarc"
+link "shell" "$HOME/.config/shell"
+link "bash" "$HOME/.config/bash"
+link "zsh" "$HOME/.config/zsh"
 link "tmux/.tmux.conf" "$HOME/.tmux.conf"
-link "git/.gitconfig" "$HOME/.gitconfig"
+link "git/gitconfig" "$HOME/.gitconfig"
+link "git/gitignore_global" "$HOME/.gitignore_global"
 
 # Source aliases from .bashrc / .zshrc if not already present
 for rcfile in "$HOME/.bashrc" "$HOME/.zshrc"; do
