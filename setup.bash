@@ -164,21 +164,11 @@ link "zsh" "$HOME/.config/zsh"
 link "shell" "$HOME/.config/shell"
 
 link "nvim" "$HOME/.config/nvim"
-link "vim/vimrc" "$HOME/.vimrc"
-link "tmux/.tmux.conf" "$HOME/.tmux.conf"
+link "tmux/tmux.conf" "$HOME/.tmux.conf"
 
 # Choose one canonical Git config. Prefer git/gitconfig unless you decide otherwise.
 link "git/gitconfig" "$HOME/.gitconfig"
 link "git/gitignore_global" "$HOME/.gitignore_global"
-
-# Vim: adjust this if your real file is vim/.vimrc instead.
-if [ -f "$DOTFILES_DIR/vim/vimrc" ]; then
-    link "vim/vimrc" "$HOME/.vimrc"
-elif [ -f "$DOTFILES_DIR/vim/.vimrc" ]; then
-    link "vim/.vimrc" "$HOME/.vimrc"
-else
-    echo "    Skipping Vim: neither vim/vimrc nor vim/.vimrc exists"
-fi
 
 if ! command -v tree-sitter &>/dev/null; then
     echo "==> Installing tree-sitter-cli..."

@@ -106,8 +106,6 @@
 
 [user]
 	useConfigOnly = true
-	name = Gunnar G. Grotmol
-	email = Gunnar.Grotmol@gmail.com
 
 [http]
 	cookieFile = ~/.gitcookies
