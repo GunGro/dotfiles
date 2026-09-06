@@ -46,7 +46,7 @@ return {
 		config = function()
 			require("lualine").setup({
 				options = {
-					theme = "catppuccin",
+					theme = require("lualine.themes.catppuccin") or "auto",
 					component_separators = "|",
 					section_separators = "",
 				},
