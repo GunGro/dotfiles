@@ -40,7 +40,7 @@ nvim_ok() {
     minor="${rest%%.*}"
 
     [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ ]] || return 1
-    (( major > 0 || minor >= 11 ))
+    ((major > 0 || minor >= 11))
 }
 
 if nvim_ok; then
@@ -207,6 +207,7 @@ link "shell" "$HOME/.config/shell"
 
 link "nvim" "$HOME/.config/nvim"
 link "tmux/tmux.conf" "$HOME/.tmux.conf"
+link "kitty" "$HOME/.config/kitty"
 
 link "git/gitconfig" "$HOME/.gitconfig"
 link "git/gitignore_global" "$HOME/.gitignore_global"
