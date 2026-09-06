@@ -92,6 +92,7 @@ map("n", "<leader>q", ":q<CR>")
 
 -- Telescope
 map("n", "<leader>ff", ":Telescope find_files<CR>")
+map("n", "<C-p>", ":Telescope find_files<CR>")
 map("n", "<leader>fg", ":Telescope live_grep<CR>")
 map("n", "<leader>fb", ":Telescope buffers<CR>")
 map("n", "<leader>fs", ":Telescope lsp_document_symbols<CR>")
