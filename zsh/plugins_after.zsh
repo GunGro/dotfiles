@@ -1,13 +1,38 @@
 # External plugins initialized after compinit.
 
-source "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
 # dircolors
 if command -v dircolors >/dev/null 2>&1 && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
     eval "$(dircolors "$HOME/.config/shell/plugins/dircolors-solarized/dircolors.256dark")"
 fi
 
-# zsh-syntax-highlighting
+# zoxide
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+# fzf keybindings (Ctrl+T: fuzzy file insert, Alt+C: fuzzy cd)
+if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    source /usr/share/doc/fzf/examples/key-bindings.zsh
+fi
+
+# fzf-tab
+if [ -f "$HOME/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]; then
+    source "$HOME/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
+fi
+
+# zsh-autosuggestions
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=246'
+if [ -f "$HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+    source "$HOME/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
+# zsh-syntax-highlighting must be last
+if [ -f "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+    source "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+# Keep your highlighting styles
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
 if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
@@ -32,15 +57,4 @@ if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -
     ZSH_HIGHLIGHT_STYLES[dollar-double-quoted-argument]=fg=136
     ZSH_HIGHLIGHT_STYLES[back-double-quoted-argument]=fg=136
     ZSH_HIGHLIGHT_STYLES[assign]=fg=037
-fi
-
-
-# zoxide
-if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-fi
-
-# fzf keybindings (Ctrl+T: fuzzy file insert, Alt+C: fuzzy cd)
-if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
-    source /usr/share/doc/fzf/examples/key-bindings.zsh
 fi

@@ -50,4 +50,6 @@ fi
 path_prepend "$HOME/.cargo/bin"
 path_prepend "$HOME/.local/bin"
 
-. "$HOME/.atuin/bin/env"
+if [ -f "$HOME/.atuin/bin/env" ]; then
+    . "$HOME/.atuin/bin/env"
+fi
