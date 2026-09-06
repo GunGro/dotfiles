@@ -106,8 +106,6 @@
 
 [user]
 	useConfigOnly = true
-	email = gunnar.grotmol@gmail.com
-	name = Gunnar G. Grotmol
 
 [http]
 	cookieFile = ~/.gitcookies
@@ -117,4 +115,4 @@
 
 # Allow local customizations in the .gitconfig_local file
 [include]
-	path = ~/.gitconfig_local
+	path = /home/gunnar/.gitconfig_local

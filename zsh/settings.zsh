@@ -1,37 +1,39 @@
-# Initialize the completion
-autoload -Uz compinit && compinit -i
+# Completion
 zstyle ':completion:*' menu select=4
-zmodload zsh/complist
+zmodload zsh/complist 2>/dev/null || true
+autoload -Uz compinit
+compinit -i
 
-# Use vim style navigation keys in menu completion
+# Vim-style navigation keys in menu completion
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
-# Initialize editing command line
-autoload -U edit-command-line && zle -N edit-command-line
+# Edit command line in $EDITOR
+autoload -Uz edit-command-line
+zle -N edit-command-line
 
-# setopt histignorealldups sharehistory
 setopt interactivecomments
 
-# good history
+# History
 HISTSIZE=1000000
-HISTFILE=~/.zsh_history
+HISTFILE="$HOME/.zsh_history"
 SAVEHIST=$HISTSIZE
 setopt appendhistory
 setopt incappendhistory
 setopt extendedhistory
 
-# Time to wait for additional characters in a sequence
-KEYTIMEOUT=1 # corresponds to 10ms
+# Time to wait for additional characters in an escape sequence.
+# Zsh uses hundredths of a second; 1 = 10 ms.
+KEYTIMEOUT=1
 
-# Use nvim as the editor
+# Editor
 export EDITOR=nvim
 export VISUAL=nvim
 
-# Use vim style line editing in zsh
+# Vim-style line editing
 bindkey -v
 
-disable r
+disable r 2>/dev/null || true
 unsetopt BEEP

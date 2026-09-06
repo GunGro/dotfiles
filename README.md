@@ -1,16 +1,21 @@
+# dotfiles
 
-A simple dotfiles container. 
+Personal Debian/Ubuntu-oriented dotfiles for Bash, Zsh, Git, tmux and Neovim.
 
-# Installation
+## Installation
 
-simply run `bash path_to_repository/setup.bash`
+Run:
 
+```bash
+bash path_to_repository/setup.bash
+The setup script installs required packages, initializes submodules, installs shell/editor tooling, and links the config files into $HOME.
 
-# Includes
-A prompt and aliases for zsh and plugins for completions in zsh
-Configuration and plugins for Neovim
-Configuration for tmux
-
-
-# Usage
-Please use the "*_local" files for local changes
+Includes
+Bash and Zsh configuration
+Shared shell aliases and functions
+Zsh completions and syntax highlighting
+Neovim configuration using lazy.nvim
+tmux configuration with TPM plugins
+Git configuration and global ignore rules
+Local changes
+Use the *_local and local_* files for machine-specific changes. These files are ignored by Git.

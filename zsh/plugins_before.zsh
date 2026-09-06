@@ -1,8 +1,7 @@
-# External plugins (initialized before)
+# External plugins initialized before compinit.
 
 # zsh-completions
-fpath=(~/.config/zsh/plugins/zsh-completions/src $fpath)
+fpath=("$HOME/.config/zsh/plugins/zsh-completions/src" $fpath)
 
-# conda completions
-fpath+=~/.zsh/plugins/conda-zsh-completion
-compinit conda
+# conda-zsh-completion
+fpath=("$HOME/.config/zsh/plugins/conda-zsh-completion" $fpath)

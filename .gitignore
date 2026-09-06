@@ -1,15 +1,32 @@
-# files that are supposed to only be placed locally
+# Local override files. These are intentionally untracked.
 zsh/local_changes.zsh
 shell/local_changes.sh
 bash/local_changes.bash
+
 zsh/local_aliases.zsh
 shell/local_aliases.sh
 bash/local_aliases.bash
+
 zsh/local_functions.zsh
 shell/local_functions.sh
 bash/local_functions.bash
 
+# Local Git identity/customizations
 local_gitconfig
-# histfile
+git/local_gitconfig
+.gitconfig_local
+
+# Generated diagnostics / repo dumps
+repo_dump.txt
+repo_dump*.txt
+output.md
+output*.md
+
+# Vim/netrw leftovers
 vim/.netrwhist
 
+# OS/editor noise
+.DS_Store
+*.swp
+*.swo
+*~

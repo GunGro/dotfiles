@@ -1,46 +1,46 @@
-# External plugins (initialized before)
-source ~/.config/zsh/plugins_before.zsh
+# External plugins initialized before compinit
+source "$HOME/.config/zsh/plugins_before.zsh"
 
 # Settings
-source ~/.config/zsh/settings.zsh
+source "$HOME/.config/zsh/settings.zsh"
 
-# Aliases for all shells
-source ~/.config/shell/aliases.sh
+# Shared aliases/functions
+source "$HOME/.config/shell/aliases.sh"
+source "$HOME/.config/shell/functions.sh"
 
-# Functions for all shells
-source ~/.config/shell/functions.sh
-
-# local aliases
+# Local aliases
 if [ -f "$HOME/.config/shell/local_aliases.sh" ]; then
-    source ~/.config/shell/local_aliases.sh
+    source "$HOME/.config/shell/local_aliases.sh"
 fi
 
 if [ -f "$HOME/.config/zsh/local_aliases.zsh" ]; then
-    source ~/.config/zsh/local_aliases.zsh
+    source "$HOME/.config/zsh/local_aliases.zsh"
 fi
 
+# Local functions
 if [ -f "$HOME/.config/shell/local_functions.sh" ]; then
-    source ~/.config/shell/local_functions.sh
+    source "$HOME/.config/shell/local_functions.sh"
 fi
 
 if [ -f "$HOME/.config/zsh/local_functions.zsh" ]; then
-    source ~/.config/zsh/local_functions.zsh
+    source "$HOME/.config/zsh/local_functions.zsh"
 fi
 
-# Custom prompt 
-source ~/.config/zsh/prompt.zsh
+# Custom prompt
+source "$HOME/.config/zsh/prompt.zsh"
 
-# External plugins (initialized after)
-source ~/.config/zsh/plugins_after.zsh
+# External plugins initialized after compinit
+source "$HOME/.config/zsh/plugins_after.zsh"
 
-# local changes
+# Local changes
 if [ -f "$HOME/.config/shell/local_changes.sh" ]; then
-    source ~/.config/shell/local_changes.sh
+    source "$HOME/.config/shell/local_changes.sh"
 fi
 
 if [ -f "$HOME/.config/zsh/local_changes.zsh" ]; then
-    source ~/.config/zsh/local_changes.zsh
+    source "$HOME/.config/zsh/local_changes.zsh"
 fi
 
+# User-local tools
 path_prepend "$HOME/.cargo/bin"
 path_prepend "$HOME/.local/bin"

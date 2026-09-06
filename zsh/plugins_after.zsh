@@ -1,19 +1,17 @@
-# External plugins (initialized after)
+# External plugins initialized after compinit.
 
 # dircolors
-
-if [[ "$(tput colors)" == "256" ]]; then
-    eval `dircolors ~/.config/shell/plugins/dircolors-solarized/dircolors.256dark`
+if command -v dircolors >/dev/null 2>&1 && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
+    eval "$(dircolors "$HOME/.config/shell/plugins/dircolors-solarized/dircolors.256dark")"
 fi
 
-# Syntax highlighting
-
+# zsh-syntax-highlighting
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
-if [[ "$(tput colors)" == "256" ]]; then
+if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
     ZSH_HIGHLIGHT_STYLES[default]=none
     ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=160
-    ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=037,bold #,standout
+    ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=037,bold
     ZSH_HIGHLIGHT_STYLES[alias]=fg=064,bold
     ZSH_HIGHLIGHT_STYLES[builtin]=fg=064,bold
     ZSH_HIGHLIGHT_STYLES[function]=fg=064,bold
@@ -34,7 +32,4 @@ if [[ "$(tput colors)" == "256" ]]; then
     ZSH_HIGHLIGHT_STYLES[assign]=fg=037
 fi
 
-
-source ~/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-
+source "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
