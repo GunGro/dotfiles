@@ -36,6 +36,11 @@ source "$HOME/.config/bash/prompt.bash"
 # External plugins
 source "$HOME/.config/bash/plugins.bash"
 
+# atuin (loaded after fzf so its Ctrl+R binding takes precedence)
+if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init bash)"
+fi
+
 # Local changes
 if [ -f "$HOME/.config/shell/local_changes.sh" ]; then
     source "$HOME/.config/shell/local_changes.sh"
@@ -52,3 +57,5 @@ fi
 
 path_prepend "$HOME/.cargo/bin"
 path_prepend "$HOME/.local/bin"
+
+. "$HOME/.atuin/bin/env"

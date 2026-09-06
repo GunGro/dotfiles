@@ -32,6 +32,11 @@ source "$HOME/.config/zsh/prompt.zsh"
 # External plugins initialized after compinit
 source "$HOME/.config/zsh/plugins_after.zsh"
 
+# atuin (loaded after fzf so its Ctrl+R binding takes precedence)
+if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init zsh)"
+fi
+
 # Local changes
 if [ -f "$HOME/.config/shell/local_changes.sh" ]; then
     source "$HOME/.config/shell/local_changes.sh"
@@ -44,3 +49,5 @@ fi
 # User-local tools
 path_prepend "$HOME/.cargo/bin"
 path_prepend "$HOME/.local/bin"
+
+. "$HOME/.atuin/bin/env"

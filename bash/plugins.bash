@@ -8,3 +8,8 @@ if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init bash)"
     alias cd='z'
 fi
+
+# fzf keybindings (Ctrl+T: fuzzy file insert, Alt+C: fuzzy cd)
+if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+    source /usr/share/doc/fzf/examples/key-bindings.bash
+fi

@@ -16,6 +16,11 @@ alias cmake-link='ln -sf build/compile_commands.json .'
 # Full fresh configure + build + link in one shot
 alias cmake-fresh='cmake-clean && cmake-init && cmake-build && cmake-link'
 
+# Auto-rebuild on file change (requires watchexec)
+if command -v watchexec >/dev/null 2>&1; then
+    alias cmake-watch='watchexec -e cpp,h,hpp,cc -- cmake-build'
+fi
+
 # Listing (eza if available, plain ls fallback)
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --group-directories-first'

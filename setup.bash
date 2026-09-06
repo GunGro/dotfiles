@@ -21,7 +21,7 @@ sudo apt-get install -y \
     lldb \
     tmux \
     python3 python3-pip python3-venv pipx \
-    ripgrep fd-find fzf bat zoxide btop \
+    ripgrep fd-find fzf bat zoxide btop ncdu \
     nodejs npm \
     zsh \
     xclip wl-clipboard \
@@ -191,12 +191,26 @@ AICHAT_EOF
     echo "    NOTE: edit ~/.config/aichat/config.yaml or export your API key."
 fi
 
-# ─── Ollama ──────────────────────────────────────────────────────────────────
+# ─── watchexec (auto-rerun a command on file change) ─────────────────────────
+
+if ! command -v watchexec &>/dev/null; then
+    echo "==> Installing watchexec..."
+    cargo install watchexec-cli
+fi
+
+# ─── Ollama (optional local LLM backend) ──────────────────────────────────────────────────────────────────
 
 if ! command -v ollama >/dev/null 2>&1; then
     echo "==> Installing Ollama..."
     curl -fsSL https://ollama.com/install.sh | sh
     echo "    Run 'ollama pull deepseek-coder-v2' to get a local coding model."
+fi
+
+# ─── atuin (unified, searchable shell history across bash + zsh) ─────────────
+
+if ! command -v atuin &>/dev/null; then
+    echo "==> Installing atuin..."
+    curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh
 fi
 
 # ─── TPM — Tmux Plugin Manager ───────────────────────────────────────────────
