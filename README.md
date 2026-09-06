@@ -16,6 +16,7 @@ The setup script installs required packages, initializes submodules, installs sh
 - Neovim configuration using `lazy.nvim`
 - tmux configuration with TPM plugins
 - Git configuration and global ignore rules
+- Modern CLI tooling: zoxide, eza, btop, lazygit, git-delta
 
 ## Local changes
 

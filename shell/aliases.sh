@@ -16,17 +16,30 @@ alias cmake-link='ln -sf build/compile_commands.json .'
 # Full fresh configure + build + link in one shot
 alias cmake-fresh='cmake-clean && cmake-init && cmake-build && cmake-link'
 
-# Colors from coreutils utilities output
-alias ls='ls --color=auto'
+# Listing (eza if available, plain ls fallback)
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --group-directories-first'
+    alias ll='eza -lah --group-directories-first --git'
+    alias la='eza -a --group-directories-first'
+    alias l='eza -F --group-directories-first'
+    alias lt='eza --tree --level=2'
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -lah --color=auto'
+    alias la='ls -A --color=auto'
+    alias l='ls -CF --color=auto'
+fi
 alias grep='grep --color=auto'
+
+# btop
+if command -v btop >/dev/null 2>&1; then
+    alias top='btop'
+fi
 
 # Navigation
 
 alias ..='cd ..'
 alias ...='cd ../..'
-alias ll='ls -lah --color=auto'
-alias la='ls -A --color=auto'
-alias l='ls -CF --color=auto'
 
 # clear
 alias c='clear'

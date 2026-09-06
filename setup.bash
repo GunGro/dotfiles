@@ -21,7 +21,7 @@ sudo apt-get install -y \
     lldb \
     tmux \
     python3 python3-pip python3-venv pipx \
-    ripgrep fd-find fzf bat \
+    ripgrep fd-find fzf bat zoxide btop \
     nodejs npm \
     zsh \
     xclip wl-clipboard \
@@ -88,6 +88,24 @@ fi
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env" 2>/dev/null || true
 
+# ─── eza (modern ls) ─────────────────────────────────────────────────────────
+# NOTE: deliberately NOT falling back to `cargo install eza` — eza depends on
+# palette, whose derive macros have broken on stable rustc for some version
+# combinations (E0433 in FromColorUnclamped). Prebuilt binary avoids this.
+
+if ! command -v eza &>/dev/null; then
+    echo "==> Installing eza..."
+    if ! sudo apt-get install -y eza 2>/dev/null; then
+        echo "    eza not in apt repos on this system, using prebuilt binary..."
+        tmpdir="$(mktemp -d)"
+        curl -fsSL -o "$tmpdir/eza.tar.gz" \
+            "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz"
+        tar -xzf "$tmpdir/eza.tar.gz" -C "$tmpdir"
+        install -m 0755 "$tmpdir/eza" "$HOME/.local/bin/eza"
+        rm -rf "$tmpdir"
+    fi
+fi
+
 # ─── typos ───────────────────────────────────────────────────────────────────
 
 if ! command -v typos >/dev/null 2>&1; then
@@ -103,8 +121,45 @@ if ! command -v typos >/dev/null 2>&1; then
     rm -rf "$tmpdir"
 fi
 
-# ─── aichat ──────────────────────────────────────────────────────────────────
+# ─── lazygit (git TUI) ────────────────────────────────────────────────────────
 
+if ! command -v lazygit &>/dev/null; then
+    echo "==> Installing lazygit..."
+    tmpdir="$(mktemp -d)"
+    LAZYGIT_VER="$(curl -fsSL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" |
+        grep -Po '"tag_name": *"v\K[^"]*')"
+
+    if [ -z "$LAZYGIT_VER" ]; then
+        echo "ERROR: could not determine latest lazygit version, skipping" >&2
+    else
+        curl -fsSL -o "$tmpdir/lazygit.tar.gz" \
+            "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VER}_Linux_x86_64.tar.gz"
+        tar -xzf "$tmpdir/lazygit.tar.gz" -C "$tmpdir" lazygit
+        install -m 0755 "$tmpdir/lazygit" "$HOME/.local/bin/lazygit"
+    fi
+    rm -rf "$tmpdir"
+fi
+
+# ─── git-delta (better diff pager) ────────────────────────────────────────────
+
+if ! command -v delta &>/dev/null; then
+    echo "==> Installing git-delta..."
+    tmpdir="$(mktemp -d)"
+    DELTA_VER="$(curl -fsSL "https://api.github.com/repos/dandavison/delta/releases/latest" |
+        grep -Po '"tag_name": *"\K[^"]*')"
+
+    if [ -z "$DELTA_VER" ]; then
+        echo "ERROR: could not determine latest git-delta version, skipping" >&2
+    else
+        curl -fsSL -o "$tmpdir/delta.tar.gz" \
+            "https://github.com/dandavison/delta/releases/download/${DELTA_VER}/delta-${DELTA_VER}-x86_64-unknown-linux-gnu.tar.gz"
+        tar -xzf "$tmpdir/delta.tar.gz" -C "$tmpdir"
+        install -m 0755 "$tmpdir/delta-${DELTA_VER}-x86_64-unknown-linux-gnu/delta" "$HOME/.local/bin/delta"
+    fi
+    rm -rf "$tmpdir"
+fi
+
+# ─── aichat (AI CLI tool, used in shell and tmux) ────────────────────────────'
 if ! command -v aichat >/dev/null 2>&1; then
     echo "==> Installing aichat..."
     cargo install aichat

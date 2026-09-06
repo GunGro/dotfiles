@@ -34,3 +34,9 @@ if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -
     ZSH_HIGHLIGHT_STYLES[assign]=fg=037
 fi
 
+
+# zoxide
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+    alias cd='z'
+fi
