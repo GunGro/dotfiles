@@ -39,7 +39,7 @@ return {
 		config = function()
 			require("lualine").setup({
 				options = {
-					theme = require("catppuccin.utils.lualine")("mocha"),
+					theme = "catppuccin",
 					component_separators = "|",
 					section_separators = "",
 				},

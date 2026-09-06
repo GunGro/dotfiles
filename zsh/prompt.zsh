@@ -15,7 +15,7 @@ setopt prompt_subst
 autoload -U colors && colors
 
 # Make using 256 colors easier
-if [[ "$(tput colors)" == "256" ]]; then
+if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
     source ~/.config/zsh/plugins/spectrum.zsh
     
     # change default colors
@@ -181,7 +181,7 @@ function parse_git_state() {
     fi
 
     local GIT_DIR="$(git rev-parse --git-dir 2> /dev/null)"
-    if [ -n $GIT_DIR ] && test -r $GIT_DIR/MERGE_HEAD; then
+    if [ -n "$GIT_DIR" ] && test -r "$GIT_DIR/MERGE_HEAD"; then
         if [[ -n $GIT_STATE ]]; then
             GIT_STATE="$GIT_STATE "
         fi

@@ -115,4 +115,4 @@
 
 # Allow local customizations in the .gitconfig_local file
 [include]
-	path = /home/gunnar/.gitconfig_local
+	path = ~/.gitconfig_local

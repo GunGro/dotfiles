@@ -18,7 +18,7 @@ alias cmake-fresh='cmake-clean && cmake-init && cmake-build && cmake-link'
 
 # Colors from coreutils utilities output
 alias ls='ls --color=auto'
-alias grep='grep --color'
+alias grep='grep --color=auto'
 
 # Navigation
 
