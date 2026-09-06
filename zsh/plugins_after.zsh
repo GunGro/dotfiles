@@ -1,5 +1,7 @@
 # External plugins initialized after compinit.
 
+source "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+
 # dircolors
 if command -v dircolors >/dev/null 2>&1 && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
     eval "$(dircolors "$HOME/.config/shell/plugins/dircolors-solarized/dircolors.256dark")"
@@ -32,4 +34,3 @@ if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -
     ZSH_HIGHLIGHT_STYLES[assign]=fg=037
 fi
 
-source "$HOME/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
