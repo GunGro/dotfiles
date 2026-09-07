@@ -22,6 +22,7 @@ sudo apt-get install -y \
     tmux \
     python3 python3-pip python3-venv pipx \
     ripgrep fd-find fzf bat zoxide btop ncdu \
+    direnv shellcheck jq \
     nodejs npm \
     zsh \
     xclip wl-clipboard \
@@ -118,6 +119,17 @@ if ! command -v typos >/dev/null 2>&1; then
         tar -xz -C "$tmpdir"
 
     install -m 0755 "$tmpdir/typos" "$HOME/.local/bin/typos"
+    rm -rf "$tmpdir"
+fi
+
+# ─── yq (YAML/JSON/XML processor) ────────────────────────────────────────────
+
+if ! command -v yq &>/dev/null; then
+    echo "==> Installing yq..."
+    tmpdir="$(mktemp -d)"
+    curl -fsSL -o "$tmpdir/yq" \
+        "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
+    install -m 0755 "$tmpdir/yq" "$HOME/.local/bin/yq"
     rm -rf "$tmpdir"
 fi
 
@@ -228,6 +240,17 @@ if [ ! -d "$LAZY_DIR" ]; then
     echo "==> Installing lazy.nvim..."
     git clone --filter=blob:none --depth=1 \
         https://github.com/folke/lazy.nvim.git "$LAZY_DIR"
+fi
+
+# ─── Local Git identity ──────────────────────────────────────────────────────
+
+if [ ! -f "$HOME/.gitconfig_local" ]; then
+    echo "==> Creating ~/.gitconfig_local template (edit with your name/email)..."
+    cat >"$HOME/.gitconfig_local" <<'GITLOCAL_EOF'
+[user]
+    name = Your Name
+    email = you@example.com
+GITLOCAL_EOF
 fi
 
 # ─── Symlinks ────────────────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
-# Editor 
+#! /bin/env bash
+# Editor
 
 alias vim='nvim'
 alias vi='nvim'
@@ -50,11 +51,11 @@ alias ...='cd ../..'
 alias c='clear'
 # git
 alias gag='git exec ag'
+alias lg='lazygit'
 
 # shutoff/exit shortcuts
 alias s='shutdown -h'
 alias e='exit'
-
 
 # git root
 alias cdgr='cd $(git root)'
@@ -64,16 +65,16 @@ alias sshx="ssh -X"
 
 # AI shortcuts
 alias ai='aichat'
-alias aicode='aichat --role code'    # terse code-focused answers
+alias aicode='aichat --role code' # terse code-focused answers
 
 # Quick review: pipe a file to AI
 # Usage: aireview sim.cpp
 aireview() {
-  cat "$1" | aichat "Review this code for correctness, style, and numerical stability. Be concise."
+    cat "$1" | aichat "Review this code for correctness, style, and numerical stability. Be concise."
 }
 
 # Explain last command's output
 # Usage: run a command, then: aiexplain
 aiexplain() {
-  aichat "Explain this terminal output and suggest fixes if needed:" < /dev/stdin
+    aichat "Explain this terminal output and suggest fixes if needed:" </dev/stdin
 }

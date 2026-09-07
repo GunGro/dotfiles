@@ -15,7 +15,18 @@ if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
     source /usr/share/doc/fzf/examples/key-bindings.zsh
 fi
 
+# direnv
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook zsh)"
+fi
+
 # fzf-tab
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null || ls -1 --color=always $realpath'
+zstyle ':fzf-tab:*' switch-group '<' '>'
+
 if [ -f "$HOME/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]; then
     source "$HOME/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
 fi

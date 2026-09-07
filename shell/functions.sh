@@ -1,5 +1,15 @@
+#! /bin/env bash
 path_remove() {
-    PATH=$(echo -n "$PATH" | awk -v RS=: -v ORS=: "\$0 != \"$1\"" | sed 's/:$//')
+    local target="$1"
+    local IFS=:
+    local -a parts=($PATH)
+    local -a kept=()
+    local part
+    for part in "${parts[@]}"; do
+        [[ "$part" == "$target" ]] || kept+=("$part")
+    done
+    PATH="${kept[*]}"
+    IFS=' '
 }
 
 path_append() {
@@ -11,4 +21,3 @@ path_prepend() {
     path_remove "$1"
     PATH="$1${PATH:+":$PATH"}"
 }
-
