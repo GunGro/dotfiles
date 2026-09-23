@@ -13,6 +13,7 @@ git -C "$DOTFILES_DIR" submodule update --init --recursive
 # ─── Package dependencies ────────────────────────────────────────────────────
 
 echo "==> Installing system packages..."
+sudo add-apt-repository ppa:neovim-ppa/unstable
 sudo apt-get update -qq
 sudo apt-get install -y \
     git curl wget unzip build-essential \

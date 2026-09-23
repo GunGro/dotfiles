@@ -141,7 +141,7 @@ return {
 			ts.setup()
 
 			-- Install parsers for the languages you use
-			ts.install({ "c", "cpp", "lua", "python", "bash", "cmake" })
+			ts.install({ "c", "cpp", "lua", "python", "bash", "cmake", "markdown" })
 
 			-- Start highlighting + indent per-buffer for these filetypes
 			vim.api.nvim_create_autocmd("FileType", {

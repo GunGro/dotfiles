@@ -113,6 +113,7 @@
 [core]
 	excludesfile = ~/.gitignore_global
 	pager = delta
+	longpaths = true
 
 # Allow local customizations in the .gitconfig_local file
 [include]
