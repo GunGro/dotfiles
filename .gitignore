@@ -30,3 +30,6 @@ vim/.netrwhist
 *.swp
 *.swo
 *~
+
+#Random
+*.test

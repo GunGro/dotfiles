@@ -141,11 +141,25 @@ return {
 			ts.setup()
 
 			-- Install parsers for the languages you use
-			ts.install({ "c", "cpp", "lua", "python", "bash", "cmake", "markdown" })
+			ts.install({
+				"c",
+				"cpp",
+				"lua",
+				"python",
+				"bash",
+				"cmake",
+				"markdown",
+				"typescript",
+				"tsx",
+				"javascript",
+				"vim",
+				"vimdoc",
+				"query",
+			})
 
 			-- Start highlighting + indent per-buffer for these filetypes
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "c", "cpp", "lua", "python", "bash", "cmake" },
+				pattern = { "c", "cpp", "lua", "python", "bash", "cmake", "typescript", "tsx", "javascript" },
 				callback = function()
 					vim.treesitter.start()
 					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -179,6 +193,9 @@ return {
 					"typos-lsp",
 					"stylua",
 					"shfmt",
+					"vtsls",
+					"js-debug-adapter",
+					"prettier",
 					-- clang-format intentionally omitted: installed via apt
 				},
 				auto_update = false,
@@ -189,7 +206,36 @@ return {
 
 	-- nvim-lspconfig kept only for its server definitions (name→cmd mappings),
 	-- NOT as a setup framework. No require('lspconfig').X.setup() anywhere.
-	{ "neovim/nvim-lspconfig" },
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"williamboman/mason.nvim",
+		},
+		config = function()
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			if pcall(require, "cmp_nvim_lsp") then
+				capabilities =
+					vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+			end
+			--setup vtsls language server
+			vim.lsp.config("vtsls", {
+				capabilities = capabilities,
+				cmd = { "vtsls", "--stdio" },
+				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+				settings = {
+					typescript = {
+						updateImportsOnFileMove = { enabled = "always" },
+						inlayHints = {
+							parameterNames = { enabled = "all" },
+							variableTypes = { enabled = true },
+						},
+					},
+				},
+			})
+
+			vim.lsp.enable("vtsls")
+		end,
+	},
 
 	-- ─── Completion ───────────────────────────────────────────────────────────
 	{
@@ -244,21 +290,89 @@ return {
 	-- ─── Formatting ───────────────────────────────────────────────────────────
 	{
 		"stevearc/conform.nvim",
+		dependencies = { "lewis6991/gitsigns.nvim" },
 		config = function()
-			require("conform").setup({
+			local conform = require("conform")
+			conform.setup({
 				formatters_by_ft = {
-					cpp = { "clang_format" },
 					c = { "clang_format" },
+					cpp = { "clang_format" },
 					lua = { "stylua" },
-					sh = { "shfmt" },
+					python = { "ruff_format" },
+					javascript = { "prettier" },
+					typescript = { "prettier" },
+					javascriptreact = { "prettier" },
+					typescriptreact = { "prettier" },
 				},
-				format_on_save = {
-					timeout_ms = 500,
-					lsp_fallback = true,
-				},
+				-- no format_on_save here; the autocmd below handles it
+			})
+
+			local fmt_opts = { async = false, timeout_ms = 1000, lsp_format = "fallback" }
+
+			local function format_changed_or_all(bufnr)
+				local mode = vim.b[bufnr].format_mode -- optional override via :FormatMode
+				if mode == "off" then
+					return
+				end
+
+				-- gitsigns sets this only when the buffer is attached (tracked file in a repo)
+				local tracked = vim.b[bufnr].gitsigns_status_dict ~= nil
+				if mode == "full" or not tracked then
+					conform.format(vim.tbl_extend("force", fmt_opts, { bufnr = bufnr }))
+					return
+				end
+
+				local hunks = require("gitsigns").get_hunks(bufnr) or {}
+				for i = #hunks, 1, -1 do -- bottom-up so earlier ranges don't shift
+					local h = hunks[i]
+					if h.type ~= "delete" and h.added.count > 0 then
+						local first = h.added.start
+						local last = first + h.added.count - 1
+						local last_line = vim.api.nvim_buf_get_lines(bufnr, last - 1, last, true)[1]
+						conform.format(vim.tbl_extend("force", fmt_opts, {
+							bufnr = bufnr,
+							range = { start = { first, 0 }, ["end"] = { last, #last_line } },
+						}))
+					end
+				end
+			end
+
+			vim.api.nvim_create_autocmd("BufWritePre", {
+				group = vim.api.nvim_create_augroup("FormatOnSave", { clear = true }),
+				callback = function(args)
+					format_changed_or_all(args.buf)
+				end,
+			})
+
+			-- :FormatMode full | auto | off   (current buffer only)
+			vim.api.nvim_create_user_command("FormatMode", function(opts)
+				vim.b.format_mode = opts.args ~= "auto" and opts.args or nil
+				vim.notify("Format on save: " .. opts.args)
+			end, {
+				nargs = 1,
+				complete = function()
+					return { "auto", "full", "off" }
+				end,
 			})
 		end,
 	},
+	-- {
+	-- 	"stevearc/conform.nvim",
+	-- 	config = function()
+	-- 		require("conform").setup({
+	-- 			formatters_by_ft = {
+	-- 				cpp = { "clang_format" },
+	-- 				c = { "clang_format" },
+	-- 				lua = { "stylua" },
+	-- 				sh = { "shfmt" },
+	-- 			},
+	-- 			format_on_save = {
+	-- 				timeout_ms = 500,
+	-- 				lsp_fallback = true,
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- },
 
 	-- ─── Debugger (DAP) ─────────────────────────────────────────────────────────
 
@@ -304,6 +418,37 @@ return {
 				},
 			}
 			dap.configurations.c = dap.configurations.cpp
+
+			dap.adapters["pwa-node"] = {
+				type = "server",
+				host = "localhost",
+				port = "${port}",
+				executable = {
+					command = "node",
+					args = { mason_path .. "/packages/js-debug-adapter/js-debug/src/dapDebugServer.js", "${port}" },
+				},
+			}
+			for _, language in ipairs({ "typescript", "javascript", "typescriptreact", "javascriptreact" }) do
+				dap.configurations[language] = {
+					{
+						type = "pwa-node",
+						request = "launch",
+						name = "Launch Current File (ts-node)",
+						runtimeExecutable = "ts-node",
+						runtimeArgs = { "${file}" },
+						rootPath = "${workspaceFolder}",
+						cwd = "${workspaceFolder}",
+						console = "integratedTerminal",
+					},
+					{
+						type = "pwa-node",
+						request = "attach",
+						name = "Attach to Process",
+						processId = require("dap.utils").pick_process,
+						cwd = "${workspaceFolder}",
+					},
+				}
+			end
 
 			-- Keymaps
 			vim.keymap.set("n", "<F5>", dap.continue)

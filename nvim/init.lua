@@ -106,6 +106,7 @@ map("n", "]d", vim.diagnostic.goto_next)
 
 require("lazy").setup("plugins", {
 	change_detection = { notify = false },
+    readme = { enabled = false },
 })
 
 -- ─── LSP on_attach (shared across all servers) ──────────────────────────────
@@ -129,7 +130,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 -- ─── Shared LSP capabilities (enables full nvim-cmp completion features) ────
 
-local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+if pcall(require, "cmp_nvim_lsp") then
+	capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+end
 
 -- ─── clangd ─────────────────────────────────────────────────────────────────
 
