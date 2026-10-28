@@ -30,6 +30,10 @@ if [ -f "$HOME/.config/bash/local_functions.bash" ]; then
     source "$HOME/.config/bash/local_functions.bash"
 fi
 
+if [ -f "$HOME/.config/shell/local_athenebra.sh" ]; then
+    source "$HOME/.config/shell/local_athenebra.sh"
+fi
+
 # Custom prompt
 source "$HOME/.config/bash/prompt.bash"
 

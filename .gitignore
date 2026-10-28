@@ -9,6 +9,7 @@ bash/local_aliases.bash
 
 zsh/local_functions.zsh
 shell/local_functions.sh
+shell/local_athenebra.sh
 bash/local_functions.bash
 
 # Local Git identity/customizations

@@ -26,6 +26,10 @@ if [ -f "$HOME/.config/zsh/local_functions.zsh" ]; then
     source "$HOME/.config/zsh/local_functions.zsh"
 fi
 
+if [ -f "$HOME/.config/shell/local_athenebra.sh" ]; then
+    source "$HOME/.config/shell/local_athenebra.sh"
+fi
+
 # Custom prompt
 source "$HOME/.config/zsh/prompt.zsh"
 
