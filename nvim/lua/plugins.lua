@@ -94,6 +94,8 @@ return {
 					layout_strategy = "horizontal",
 					sorting_strategy = "ascending",
 					layout_config = { prompt_position = "top" },
+					-- Godot cache / generated sidecar files
+					file_ignore_patterns = { "^%.godot/", "/%.godot/", "%.import$", "%.uid$" },
 				},
 			})
 			telescope.load_extension("fzf")
@@ -155,7 +157,11 @@ return {
 				"vim",
 				"vimdoc",
 				"query",
+				"gdscript",
+				"godot_resource",
+				"gdshader",
 			})
+			vim.treesitter.language.register("godot_resource", "gdresource")
 
 			-- Start highlighting + indent per-buffer for these filetypes
 			vim.api.nvim_create_autocmd("FileType", {
@@ -163,6 +169,14 @@ return {
 				callback = function()
 					vim.treesitter.start()
 					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				end,
+			})
+
+			-- Godot: highlight only (keep Vim's own gdscript indent)
+			vim.api.nvim_create_autocmd("FileType", {
+				pattern = { "gdscript", "gdresource", "gdshader" },
+				callback = function()
+					pcall(vim.treesitter.start)
 				end,
 			})
 		end,
@@ -303,6 +317,7 @@ return {
 					typescript = { "prettier" },
 					javascriptreact = { "prettier" },
 					typescriptreact = { "prettier" },
+					gdscript = { "gdformat" },
 				},
 				-- no format_on_save here; the autocmd below handles it
 			})

@@ -146,6 +146,9 @@ vim.lsp.config("clangd", {
 		"--header-insertion=iwyu",
 		"--completion-style=detailed",
 		"--function-arg-placeholders=true",
+		"--all-scopes-completion",
+		"--pch-storage=memory",
+		"--query-driver=/usr/bin/c++,/usr/bin/g++*,/usr/bin/clang++*",
 	},
 	filetypes = { "c", "cpp", "objc", "objcpp" },
 	root_markers = { "compile_commands.json", "CMakeLists.txt", ".git" },
@@ -161,3 +164,7 @@ vim.lsp.config("typos_lsp", {
 	root_markers = { ".git" },
 })
 vim.lsp.enable("typos_lsp")
+
+-- ─── Game dev (Godot / GDExtension) ─────────────────────────────────────────
+
+require("gamedev")

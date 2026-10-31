@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Godot external editor bridge.
+# Godot → Editor Settings → Text Editor → External:
+#   Use External Editor: on
+#   Exec Path:  ~/.local/bin/godot-nvim
+#   Exec Flags: {file} {line} {col}
+# Opens the file in the nvim listening on the shared socket (any nvim started
+# inside a Godot project does, see nvim/lua/gamedev.lua); otherwise starts one
+# in a new kitty window.
+set -euo pipefail
+
+file="${1:?usage: godot-nvim FILE [LINE] [COL]}"
+line="${2:-1}"
+col="${3:-1}"
+sock="${XDG_RUNTIME_DIR:-/tmp}/godot-nvim.sock"
+
+# Godot passes 0 for unknown line/col.
+[ "$line" -ge 1 ] 2>/dev/null || line=1
+[ "$col" -ge 1 ] 2>/dev/null || col=1
+
+if [ -S "$sock" ] && nvim --server "$sock" --remote-expr 1 >/dev/null 2>&1; then
+    nvim --server "$sock" --remote-send "<C-\\><C-N>:drop $(printf '%q' "$file")<CR>:call cursor($line,$col)<CR>"
+    exit 0
+fi
+
+rm -f "$sock"
+term="${TERMINAL:-kitty}"
+exec "$term" -e nvim --listen "$sock" "+call cursor($line,$col)" "$file"
