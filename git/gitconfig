@@ -60,6 +60,9 @@
 
 [init]
 	defaultBranch = master
+	# Global hooks (pre-commit: gdformat/gdlint, clang-format, LFS size guard).
+	# Unlike core.hooksPath this keeps per-repo hooks such as Git LFS's.
+	templateDir = ~/.config/git/template
 
 [diff]
 	mnemonicPrefix = true

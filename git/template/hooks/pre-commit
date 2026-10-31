@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Global pre-commit (copied into new repos via init.templateDir; run
+# `git init` in an existing repo to add it — existing hooks are kept).
+# Checks only staged files:
+#   - GDScript: gdformat --check, gdlint            (if gdtoolkit installed)
+#   - C/C++:    clang-format on the staged content  (only if repo has .clang-format)
+#   - large binaries not tracked by Git LFS          (> PRECOMMIT_MAX_KB, default 1024)
+# Bypass: git commit --no-verify, or SKIP_HOOKS=1 git commit
+set -uo pipefail
+
+[ "${SKIP_HOOKS:-0}" = 1 ] && exit 0
+
+root="$(git rev-parse --show-toplevel)"
+cd "$root" || exit 1
+max_kb="${PRECOMMIT_MAX_KB:-1024}"
+fail=0
+
+mapfile -d '' files < <(git diff --cached --name-only --diff-filter=ACMR -z)
+[ "${#files[@]}" -eq 0 ] && exit 0
+
+gd=() cxx=()
+for f in "${files[@]}"; do
+    case "$f" in
+        *.gd) gd+=("$f") ;;
+        *.c | *.cc | *.cpp | *.cxx | *.h | *.hh | *.hpp | *.hxx | *.inl) cxx+=("$f") ;;
+    esac
+
+    # Large files must go through LFS.
+    size=$(($(git cat-file -s ":$f" 2>/dev/null || echo 0) / 1024))
+    if [ "$size" -gt "$max_kb" ] &&
+        [ "$(git check-attr filter -- "$f" | awk '{ print $NF }')" != lfs ]; then
+        echo "pre-commit: $f is ${size} KiB and not tracked by LFS (git lfs track '*.${f##*.}')" >&2
+        fail=1
+    fi
+done
+
+if [ "${#gd[@]}" -gt 0 ]; then
+    if command -v gdformat >/dev/null 2>&1; then
+        gdformat --check "${gd[@]}" >&2 || { echo "pre-commit: run gdformat on the files above" >&2; fail=1; }
+    fi
+    if command -v gdlint >/dev/null 2>&1; then
+        gdlint "${gd[@]}" >&2 || fail=1
+    fi
+fi
+
+if [ "${#cxx[@]}" -gt 0 ] && [ -f .clang-format ] && command -v clang-format >/dev/null 2>&1; then
+    for f in "${cxx[@]}"; do
+        case "$f" in */godot-cpp/* | */thirdparty/* | */third_party/* | */extern/*) continue ;; esac
+        if ! git show ":$f" | clang-format --dry-run --Werror --assume-filename="$f" >/dev/null 2>&1; then
+            echo "pre-commit: $f is not clang-formatted (clang-format -i $f)" >&2
+            fail=1
+        fi
+    done
+fi
+
+exit "$fail"

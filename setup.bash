@@ -334,6 +334,7 @@ link "kitty" "$HOME/.config/kitty"
 
 link "git/gitconfig" "$HOME/.gitconfig"
 link "git/gitignore_global" "$HOME/.gitignore_global"
+link "git/template" "$HOME/.config/git/template"
 
 link "gdb/gdbinit" "$HOME/.gdbinit"
 link "lldb/lldbinit" "$HOME/.lldbinit"
