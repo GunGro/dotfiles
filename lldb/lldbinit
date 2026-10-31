@@ -1,0 +1,10 @@
+# ~/.lldbinit — tuned for debugging Godot + C++ GDExtension
+# (codelldb does not read this by default; plain `lldb`/`gdlldb` does.)
+
+settings set target.x86-disassembly-flavor intel
+settings set stop-disassembly-display no-debuginfo
+settings set target.process.thread.step-avoid-regexp ^(std::|__gnu_cxx::|godot::internal::)
+settings set target.process.stop-on-sharedlibrary-events false
+settings set target.load-cwd-lldbinit warn
+
+process handle SIGPIPE --stop false --notify false --pass true

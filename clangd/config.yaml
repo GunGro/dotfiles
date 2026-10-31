@@ -1,0 +1,25 @@
+# ~/.config/clangd/config.yaml — user-level clangd config.
+# Project-specific flags belong in the game repo (.clangd / compile_commands.json).
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+  Designators: Yes
+
+Hover:
+  ShowAKA: Yes
+
+---
+# Vendored / generated code (godot-cpp bindings are ~1k generated TUs):
+# skip background indexing of their sources and silence their diagnostics.
+# Headers are still indexed via our own TUs, so go-to-definition keeps working.
+If:
+  PathMatch: .*/(godot-cpp|thirdparty|third_party|extern|_deps)/.*
+Index:
+  Background: Skip
+Diagnostics:
+  Suppress: "*"
+  UnusedIncludes: None
+  ClangTidy:
+    Remove: "*"

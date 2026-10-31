@@ -1,0 +1,39 @@
+# ~/.gdbinit — tuned for debugging Godot + C++ GDExtension
+
+set confirm off
+set pagination off
+set verbose off
+
+# Printing
+set print pretty on
+set print object on
+set print static-members off
+set print vtbl on
+set print demangle on
+set print asm-demangle on
+set print thread-events off
+set print inferior-events off
+set disassembly-flavor intel
+
+# GDExtension .so is dlopen()ed by Godot: keep breakpoints pending until it loads.
+set breakpoint pending on
+
+# Don't step into STL / godot-cpp binding glue.
+skip -rfu ^std::
+skip -rfu ^__gnu_cxx::
+skip -rfu ^godot::internal::
+
+# Networking (ENet / sockets) can raise SIGPIPE; not interesting while debugging.
+handle SIGPIPE nostop noprint pass
+
+# Godot ships stripped release binaries; debuginfod lookups only slow startup.
+set debuginfod enabled off
+
+# History
+set history save on
+set history size 100000
+set history remove-duplicates unlimited
+set history filename ~/.local/state/gdb_history
+
+# Allow per-project .gdbinit files under ~/Project
+add-auto-load-safe-path ~/Project
