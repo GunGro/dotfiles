@@ -21,6 +21,7 @@ sudo apt-get install -y \
     clang clang-format clangd \
     lldb gdb \
     ccache mold git-lfs \
+    hotspot heaptrack heaptrack-gui \
     tmux \
     python3 python3-pip python3-venv pipx \
     ripgrep fd-find fzf bat zoxide btop ncdu \
@@ -30,6 +31,10 @@ sudo apt-get install -y \
     xclip wl-clipboard \
     vim \
     neovim
+
+# perf matches the running kernel; not always packaged (e.g. custom kernels).
+sudo apt-get install -y linux-tools-common "linux-tools-$(uname -r)" ||
+    echo "    WARN: perf for $(uname -r) not available, skipping" >&2
 
 # ─── Neovim >= 0.11 ──────────────────────────────────────────────────────────
 

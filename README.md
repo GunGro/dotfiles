@@ -32,6 +32,9 @@ The setup script installs required packages, initializes submodules, installs sh
 | `gdgdb` / `gdlldb` / `gdbt` | Godot under gdb/lldb; batch backtrace on crash |
 | `cmb [preset]`, `cmt`, `cmasan`, `cmwatch` | CMake build, ctest, ASan+UBSan, watch |
 | `gdsession` | tmux: nvim, build watch, editor log |
+| `gdperf`, `gdheap` | CPU profile (perf + hotspot) / heap profile (heaptrack) of the game |
+| `cmprofile`, `perfstat bin` | RelWithDebInfo + frame pointers build; perf counters over 5 runs |
+| `perf-allow` | allow unprivileged perf until reboot |
 
 Set `GODOT=/path/to/godot` in a `local_changes.*` file if it is not on `PATH`.
 Install Godot with `GODOT_VER=4.x.y-stable bash setup.bash`.

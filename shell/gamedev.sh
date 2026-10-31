@@ -181,3 +181,47 @@ gdsession() {
     tmux select-pane -t "$name:.0"
     tmux attach -t "$name"
 }
+
+# ─── Profiling ───────────────────────────────────────────────────────────────
+
+# Temporarily allow unprivileged perf + kernel symbols (reset on reboot).
+perf-allow() { sudo sysctl -w kernel.perf_event_paranoid=1 kernel.kptr_restrict=0; }
+
+# CPU profile of the game (or editor with -e). DWARF unwinding works on
+# Godot's release binary, which has no frame pointers. Opens hotspot after.
+# Usage: gdperf [godot args]   → /tmp/gdperf.data
+gdperf() {
+    local out="${GDPERF_OUT:-/tmp/gdperf.data}"
+    perf record -F "${GDPERF_FREQ:-499}" --call-graph dwarf,32768 -o "$out" \
+        -- "$GODOT" --path "$(gd_root)" "$@" || return 1
+    if command -v hotspot >/dev/null 2>&1; then
+        hotspot "$out" >/dev/null 2>&1 &
+    else
+        perf report -i "$out" --no-children
+    fi
+}
+
+# Heap profile (allocations, leaks, peak) of the game. Usage: gdheap [godot args]
+gdheap() {
+    command -v heaptrack >/dev/null 2>&1 || { echo "gdheap: heaptrack missing" >&2; return 1; }
+    heaptrack -o /tmp/gdheap "$GODOT" --path "$(gd_root)" "$@"
+}
+
+# Hardware counters for a sim-core benchmark binary, 5 runs with variance.
+# Usage: perfstat build-profile/bench_sim [args]
+perfstat() {
+    perf stat -r "${PERFSTAT_RUNS:-5}" \
+        -e task-clock,cycles,instructions,branch-misses,cache-references,cache-misses,L1-dcache-load-misses \
+        -- "$@"
+}
+
+# RelWithDebInfo + frame pointers in build-profile: cheap, accurate call
+# graphs for the extension and sim core (perf record -g, no DWARF needed).
+cmprofile() {
+    local src
+    src="$(gd_src)"
+    cmake -S "$src" -B "$src/build-profile" -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_C_FLAGS="-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer" \
+        -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer" \
+        "$@" && cmake --build "$src/build-profile"
+}
