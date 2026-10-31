@@ -24,3 +24,15 @@
 *.log
 *.sqlite
 
+
+
+# C++ tooling #
+###############
+compile_commands.json
+.cache/clangd/
+.ccache/
+
+# Godot #
+#########
+.godot/
+*.tmp

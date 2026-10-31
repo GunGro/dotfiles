@@ -126,3 +126,11 @@
 	navigate = true
 	side-by-side = true
 	line-numbers = true
+
+# Git LFS (game assets). Defined here because `git lfs install` would
+# otherwise write into this symlinked file.
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
