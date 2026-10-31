@@ -19,7 +19,8 @@ sudo apt-get install -y \
     git curl wget unzip build-essential \
     cmake ninja-build pkg-config \
     clang clang-format clangd \
-    lldb \
+    lldb gdb \
+    ccache mold git-lfs \
     tmux \
     python3 python3-pip python3-venv pipx \
     ripgrep fd-find fzf bat zoxide btop ncdu \
@@ -226,6 +227,30 @@ if ! command -v atuin &>/dev/null; then
     curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh
 fi
 
+# ─── gdtoolkit (gdformat / gdlint for GDScript) ──────────────────────────────
+
+if ! command -v gdformat >/dev/null 2>&1; then
+    echo "==> Installing gdtoolkit..."
+    pipx install "gdtoolkit==4.*" || echo "    WARN: gdtoolkit install failed, skipping" >&2
+fi
+
+# ─── Godot (opt-in: GODOT_VER=4.x.y-stable bash setup.bash) ─────────────────
+
+if [ -n "${GODOT_VER:-}" ] && ! command -v godot >/dev/null 2>&1; then
+    echo "==> Installing Godot ${GODOT_VER}..."
+    tmpdir="$(mktemp -d)"
+    godot_zip="Godot_v${GODOT_VER}_linux.x86_64.zip"
+    if curl -fsSL -o "$tmpdir/$godot_zip" \
+        "https://github.com/godotengine/godot/releases/download/${GODOT_VER}/${godot_zip}"; then
+        mkdir -p "$HOME/.local/opt/godot"
+        unzip -oq "$tmpdir/$godot_zip" -d "$HOME/.local/opt/godot"
+        ln -sf "$HOME/.local/opt/godot/Godot_v${GODOT_VER}_linux.x86_64" "$HOME/.local/bin/godot"
+    else
+        echo "    WARN: could not download Godot ${GODOT_VER}, skipping" >&2
+    fi
+    rm -rf "$tmpdir"
+fi
+
 # ─── TPM — Tmux Plugin Manager ───────────────────────────────────────────────
 
 TPM_DIR="$HOME/.tmux/plugins/tpm"
@@ -305,6 +330,12 @@ link "kitty" "$HOME/.config/kitty"
 link "git/gitconfig" "$HOME/.gitconfig"
 link "git/gitignore_global" "$HOME/.gitignore_global"
 
+link "gdb/gdbinit" "$HOME/.gdbinit"
+link "lldb/lldbinit" "$HOME/.lldbinit"
+link "clangd" "$HOME/.config/clangd"
+link "bin/godot-nvim" "$HOME/.local/bin/godot-nvim"
+mkdir -p "$HOME/.local/state" # gdb history
+
 # ─── tree-sitter CLI ─────────────────────────────────────────────────────────
 
 if ! command -v tree-sitter >/dev/null 2>&1; then
@@ -326,3 +357,5 @@ echo "    1. Start tmux — plugins are installed."
 echo "    2. Open nvim — lazy.nvim syncs automatically on first launch."
 echo "    3. Edit ~/.config/aichat/config.yaml or export your API key."
 echo "    4. Optional: ollama pull deepseek-coder-v2"
+echo "    5. Godot: set Editor Settings → Text Editor → External to ~/.local/bin/godot-nvim"
+echo "       with flags '{file} {line} {col}'; run 'git lfs install' in LFS repos."

@@ -17,6 +17,24 @@ The setup script installs required packages, initializes submodules, installs sh
 - tmux configuration with TPM plugins
 - Git configuration and global ignore rules
 - Modern CLI tooling: zoxide, eza, btop, lazygit, git-delta
+- Game dev (Godot 4 + C++ GDExtension): shell helpers (`shell/gamedev.sh`),
+  GDScript LSP/DAP and Godot-hosted C++ debugging in Neovim (`nvim/lua/gamedev.lua`),
+  gdb/lldb/clangd configs, Godot external-editor bridge (`bin/godot-nvim`)
+
+## Game dev quick reference
+
+| Command | Does |
+| --- | --- |
+| `gdr` / `gde` / `gdh` | run game / editor / headless (`--path` = nearest `project.godot`) |
+| `gdimport`, `gdcheck f.gd`, `gdlintall` | import assets, parse-check, gdlint all |
+| `gdtest`, `gdwatch` | GUT/gdUnit4 headless tests, rerun on change |
+| `gdmulti N` | N tiled instances for multiplayer testing (`-- --instance=i`) |
+| `gdgdb` / `gdlldb` / `gdbt` | Godot under gdb/lldb; batch backtrace on crash |
+| `cmb [preset]`, `cmt`, `cmasan`, `cmwatch` | CMake build, ctest, ASan+UBSan, watch |
+| `gdsession` | tmux: nvim, build watch, editor log |
+
+Set `GODOT=/path/to/godot` in a `local_changes.*` file if it is not on `PATH`.
+Install Godot with `GODOT_VER=4.x.y-stable bash setup.bash`.
 
 ## Local changes
 
