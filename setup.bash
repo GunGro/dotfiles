@@ -23,7 +23,7 @@ sudo apt-get install -y \
     ccache mold git-lfs \
     hotspot heaptrack heaptrack-gui \
     tmux \
-    python3 python3-pip python3-venv pipx \
+    python3 python3-pip python3-venv pipx ipython3 \
     ripgrep fd-find fzf bat zoxide btop ncdu \
     direnv shellcheck jq \
     nodejs npm \
@@ -237,6 +237,13 @@ fi
 if ! command -v gdformat >/dev/null 2>&1; then
     echo "==> Installing gdtoolkit..."
     pipx install "gdtoolkit==4.*" || echo "    WARN: gdtoolkit install failed, skipping" >&2
+fi
+
+# ─── visidata (terminal spreadsheet for sim CSVs) ─────────────────────────────
+
+if ! command -v vd >/dev/null 2>&1; then
+    echo "==> Installing visidata..."
+    pipx install visidata || echo "    WARN: visidata install failed, skipping" >&2
 fi
 
 # ─── Godot (opt-in: GODOT_VER=4.x.y-stable bash setup.bash) ─────────────────

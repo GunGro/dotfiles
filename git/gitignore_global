@@ -32,6 +32,10 @@ compile_commands.json
 .cache/clangd/
 .ccache/
 
+# Balance-sim output (gdsim) #
+##############################
+.sims/
+
 # Godot #
 #########
 .godot/

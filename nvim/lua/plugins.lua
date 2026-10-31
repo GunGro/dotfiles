@@ -160,12 +160,14 @@ return {
 				"gdscript",
 				"godot_resource",
 				"gdshader",
+				"julia",
+				"r",
 			})
 			vim.treesitter.language.register("godot_resource", "gdresource")
 
 			-- Start highlighting + indent per-buffer for these filetypes
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "c", "cpp", "lua", "python", "bash", "cmake", "typescript", "tsx", "javascript" },
+				pattern = { "c", "cpp", "lua", "python", "bash", "cmake", "typescript", "tsx", "javascript", "julia", "r" },
 				callback = function()
 					vim.treesitter.start()
 					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -513,6 +515,50 @@ return {
 			map("<leader>tw", function() neotest.watch.toggle(vim.fn.expand("%")) end, "Test: watch file")
 			map("[t", function() neotest.jump.prev({ status = "failed" }) end, "Prev failed test")
 			map("]t", function() neotest.jump.next({ status = "failed" }) end, "Next failed test")
+		end,
+	},
+
+	-- ─── REPLs: iron.nvim (Python / Julia / R, for balance sims) ────────────────
+
+	{
+		"Vigemus/iron.nvim",
+		ft = { "python", "julia", "r" },
+		config = function()
+			local iron = require("iron.core")
+			local common = require("iron.fts.common")
+			iron.setup({
+				config = {
+					scratch_repl = true,
+					repl_definition = {
+						python = {
+							command = { "ipython", "--no-autoindent" },
+							format = common.bracketed_paste_python,
+							block_dividers = { "# %%", "#%%" },
+						},
+						-- @. = nearest Project.toml upwards
+						julia = { command = { "julia", "--project=@." }, block_dividers = { "# %%", "##" } },
+						r = { command = { "R", "--no-save", "--quiet" }, block_dividers = { "# %%", "#%%" } },
+					},
+					repl_open_cmd = require("iron.view").split.vertical.botright(0.4),
+				},
+				keymaps = {
+					toggle_repl = "<leader>sr",
+					restart_repl = "<leader>sR",
+					send_motion = "<leader>sc",
+					visual_send = "<leader>sc",
+					send_line = "<leader>sl",
+					send_file = "<leader>sf",
+					send_until_cursor = "<leader>su",
+					send_code_block = "<leader>sb",
+					send_code_block_and_move = "<leader>sn",
+					cr = "<leader>s<cr>",
+					interrupt = "<leader>s<space>",
+					exit = "<leader>sq",
+					clear = "<leader>sx",
+				},
+				highlight = { italic = true },
+				ignore_blank_lines = true,
+			})
 		end,
 	},
 

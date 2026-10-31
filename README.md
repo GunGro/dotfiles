@@ -36,6 +36,8 @@ The setup script installs required packages, initializes submodules, installs sh
 | `cmprofile`, `perfstat bin` | RelWithDebInfo + frame pointers build; perf counters over 5 runs |
 | `perf-allow` | allow unprivileged perf until reboot |
 | `netem wifi\|dsl\|mobile\|bad`, `netem set 40 8 1`, `netem off` | add latency, jitter, loss and rate limits to loopback (RTT ≈ 2× delay) |
+| `gdsim res://sim.gd [args]`, `simview` | headless sim → `.sims/*.csv` (script gets `--out=`), open newest in visidata |
+| `jl`, `jlt`, `Rq` | Julia with the nearest project / run its tests; quiet R |
 
 Global pre-commit hook (`git/template/hooks/pre-commit`): gdformat/gdlint on staged `.gd`, clang-format on staged C++ (only if the repo has `.clang-format`), and a block on files over 1 MiB that are not in LFS. New clones get it automatically; run `git init` once in existing repos. Skip with `git commit --no-verify`.
 
@@ -252,6 +254,16 @@ Tests (neotest: ctest adapter for C++, pytest for Python sims):
 | `<leader>ts` / `<leader>to` / `<leader>tO` | summary tree / output of test / output panel |
 | `<leader>tw` | watch the file and rerun on save |
 | `[t` / `]t` | previous / next failed test |
+
+REPLs for balance sims (iron.nvim; Python uses IPython, Julia `--project=@.`, R). Cells are separated by `# %%`:
+
+| Keys | What it does |
+| --- | --- |
+| `<leader>sr` / `<leader>sR` / `<leader>sq` | toggle / restart / quit the REPL |
+| `<leader>sl` / `<leader>sf` / `<leader>su` | send line / file / up to the cursor |
+| `<leader>sc{motion}`, `<leader>sc` in visual | send motion / selection |
+| `<leader>sb` / `<leader>sn` | send cell / send cell and jump to the next |
+| `<leader>s<space>` / `<leader>sx` | interrupt / clear |
 
 ### Athenebra helpers (machine-local)
 

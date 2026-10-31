@@ -265,3 +265,31 @@ netem() {
     sudo tc qdisc replace dev "$dev" root netem "$@" &&
         echo "netem: $dev delay ${d}ms±${j}ms loss ${l}%${r:+ rate $r} (RTT on lo ≈ 2×)"
 }
+
+# ─── Balance sims ────────────────────────────────────────────────────────────
+
+# Run a headless Godot sim script (extends SceneTree/MainLoop) and keep its CSV.
+# The script gets `-- --out=FILE [user args]` (OS.get_cmdline_user_args()).
+# Output: $GDSIM_DIR (default <repo>/.sims/, globally git-ignored). Prints the path.
+# Usage: gdsim res://tools/sim/dps.gd --seed=1 --n=10000
+gdsim() {
+    local script="${1:?usage: gdsim res://path/sim.gd [user args]}"
+    shift
+    local dir="${GDSIM_DIR:-$(gd_src)/.sims}" out
+    mkdir -p "$dir"
+    out="$dir/$(basename "$script" .gd)-$(date +%Y%m%d-%H%M%S).csv"
+    gdh --script "$script" -- --out="$out" "$@" && echo "$out"
+}
+
+# Newest sim CSV (or a given one) in visidata. Usage: simview [file.csv]
+simview() {
+    local f="${1:-}"
+    [ -n "$f" ] || f="$(ls -t "${GDSIM_DIR:-$(gd_src)/.sims}"/*.csv 2>/dev/null | head -n1)"
+    [ -n "$f" ] || { echo "simview: no sim CSVs" >&2; return 1; }
+    vd "$f"
+}
+
+# Julia / R with the project environment.
+alias jl='julia --project=@.'
+alias jlt='julia --project=@. -e "using Pkg; Pkg.test()"'
+alias Rq='R --no-save --quiet'
