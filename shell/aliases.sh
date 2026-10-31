@@ -78,3 +78,8 @@ aireview() {
 aiexplain() {
     aichat "Explain this terminal output and suggest fixes if needed:" </dev/stdin
 }
+
+# Game dev (Godot / GDExtension) helpers
+if [ -f "$HOME/.config/shell/gamedev.sh" ]; then
+    . "$HOME/.config/shell/gamedev.sh"
+fi
