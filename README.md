@@ -243,6 +243,16 @@ Debugging, tasks, math and AI:
 | `<leader>aa` | AI actions menu |
 | `<leader>ae` / `<leader>ar` / `<leader>af` in visual mode | AI explain / review / fix the selection |
 
+Tests (neotest: ctest adapter for C++, pytest for Python sims):
+
+| Keys | What it does |
+| --- | --- |
+| `<leader>tn` / `<leader>tf` / `<leader>ta` | run nearest test / file / all |
+| `<leader>tl` / `<leader>td` / `<leader>tx` | rerun last / debug nearest (codelldb) / stop |
+| `<leader>ts` / `<leader>to` / `<leader>tO` | summary tree / output of test / output panel |
+| `<leader>tw` | watch the file and rerun on save |
+| `[t` / `]t` | previous / next failed test |
+
 ### Athenebra helpers (machine-local)
 
 `~/.config/shell/local_athenebra.sh` is not in this repository; `zshrc` and `bashrc` source it when it exists.

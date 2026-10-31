@@ -475,6 +475,47 @@ return {
 		end,
 	},
 
+	-- ─── Tests: neotest (ctest for C++ gtest/Catch2/doctest, pytest for sims) ─────
+
+	{
+		"nvim-neotest/neotest",
+		dependencies = {
+			"nvim-neotest/nvim-nio",
+			"nvim-lua/plenary.nvim",
+			"nvim-treesitter/nvim-treesitter",
+			"orjangj/neotest-ctest",
+			"nvim-neotest/neotest-python",
+		},
+		config = function()
+			local neotest = require("neotest")
+			neotest.setup({
+				adapters = {
+					-- Discovers tests via ctest in the build dir (cmb configures build/).
+					require("neotest-ctest").setup({}),
+					require("neotest-python")({ runner = "pytest" }),
+				},
+				output = { open_on_run = false },
+				quickfix = { open = false },
+			})
+
+			local map = function(lhs, fn, desc)
+				vim.keymap.set("n", lhs, fn, { desc = desc })
+			end
+			map("<leader>tn", function() neotest.run.run() end, "Test: nearest")
+			map("<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end, "Test: file")
+			map("<leader>ta", function() neotest.run.run(vim.fn.getcwd()) end, "Test: all")
+			map("<leader>tl", function() neotest.run.run_last() end, "Test: last")
+			map("<leader>td", function() neotest.run.run({ strategy = "dap" }) end, "Test: debug nearest")
+			map("<leader>tx", function() neotest.run.stop() end, "Test: stop")
+			map("<leader>ts", function() neotest.summary.toggle() end, "Test: summary")
+			map("<leader>to", function() neotest.output.open({ enter = true, auto_close = true }) end, "Test: output")
+			map("<leader>tO", function() neotest.output_panel.toggle() end, "Test: output panel")
+			map("<leader>tw", function() neotest.watch.toggle(vim.fn.expand("%")) end, "Test: watch file")
+			map("[t", function() neotest.jump.prev({ status = "failed" }) end, "Prev failed test")
+			map("]t", function() neotest.jump.next({ status = "failed" }) end, "Next failed test")
+		end,
+	},
+
 	-- ─── Build runner ───────────────────────────────────────────────────────────
 
 	{
