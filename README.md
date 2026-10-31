@@ -38,6 +38,8 @@ The setup script installs required packages, initializes submodules, installs sh
 | `netem wifi\|dsl\|mobile\|bad`, `netem set 40 8 1`, `netem off` | add latency, jitter, loss and rate limits to loopback (RTT ≈ 2× delay) |
 | `gdsim res://sim.gd [args]`, `simview` | headless sim → `.sims/*.csv` (script gets `--out=`), open newest in visidata |
 | `jl`, `jlt`, `Rq` | Julia with the nearest project / run its tests; quiet R |
+| `gdcores`, `gdcore [pid]`, `gdcorebt` | list Godot crashes / open newest core in gdb / print all-thread backtrace |
+| `gdlogs [-f]` | Godot's `user://logs/godot.log` for this project |
 
 Global pre-commit hook (`git/template/hooks/pre-commit`): gdformat/gdlint on staged `.gd`, clang-format on staged C++ (only if the repo has `.clang-format`), and a block on files over 1 MiB that are not in LFS. New clones get it automatically; run `git init` once in existing repos. Skip with `git commit --no-verify`.
 

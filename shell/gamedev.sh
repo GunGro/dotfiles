@@ -293,3 +293,36 @@ simview() {
 alias jl='julia --project=@.'
 alias jlt='julia --project=@. -e "using Pkg; Pkg.test()"'
 alias Rq='R --no-save --quiet'
+
+# ─── Crash triage ────────────────────────────────────────────────────────────
+
+# Allow core dumps for processes started from this shell (systemd-coredump
+# stores them; it honours the crashing process's RLIMIT_CORE).
+ulimit -c unlimited 2>/dev/null || true
+
+_gd_exe() { readlink -f "$(command -v "$GODOT")"; }
+
+# Recent Godot crashes. Usage: gdcores
+gdcores() { coredumpctl list --no-pager "$(_gd_exe)" 2>/dev/null || echo "gdcores: no Godot core dumps"; }
+
+# Open the newest (or a given PID's) Godot core in gdb. The GDExtension's
+# symbols load from the .so path recorded in the core, so this is exact only
+# until you rebuild it. Usage: gdcore [pid]
+gdcore() { coredumpctl gdb "${1:-$(_gd_exe)}"; }
+
+# Full backtrace of all threads from the newest core, to stdout (paste-able).
+gdcorebt() {
+    coredumpctl debug --debugger-arguments="-q -batch -ex 'thread apply all bt full'" \
+        "${1:-$(_gd_exe)}" 2>&1
+}
+
+# Godot's own log for this project: user://logs/godot.log.
+# Usage: gdlogs [-f]   (-f follows)
+gdlogs() {
+    local root name log
+    root="$(gd_root)" || return 1
+    name="$(sed -n 's/^config\/name="\(.*\)"$/\1/p' "$root/project.godot" | head -n1)"
+    log="${XDG_DATA_HOME:-$HOME/.local/share}/godot/app_userdata/$name/logs/godot.log"
+    [ -f "$log" ] || { echo "gdlogs: $log not found (custom user dir?)" >&2; return 1; }
+    if [ "${1:-}" = -f ]; then tail -F "$log"; else ${PAGER:-less} "$log"; fi
+}

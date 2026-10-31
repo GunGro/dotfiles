@@ -22,6 +22,7 @@ sudo apt-get install -y \
     lldb gdb \
     ccache mold git-lfs \
     hotspot heaptrack heaptrack-gui \
+    systemd-coredump \
     tmux \
     python3 python3-pip python3-venv pipx ipython3 \
     ripgrep fd-find fzf bat zoxide btop ncdu \
@@ -261,6 +262,14 @@ if [ -n "${GODOT_VER:-}" ] && ! command -v godot >/dev/null 2>&1; then
         echo "    WARN: could not download Godot ${GODOT_VER}, skipping" >&2
     fi
     rm -rf "$tmpdir"
+fi
+
+# ─── Core dumps ──────────────────────────────────────────────────────────────
+# apport (Ubuntu) re-takes kernel.core_pattern on start and ignores
+# unpackaged binaries such as Godot; systemd-coredump keeps them.
+if systemctl is-enabled apport >/dev/null 2>&1; then
+    echo "    NOTE: apport is enabled; for gdcore run: sudo systemctl disable --now apport"
+    echo "          and sudo sysctl -p /usr/lib/sysctl.d/50-coredump.conf"
 fi
 
 # ─── TPM — Tmux Plugin Manager ───────────────────────────────────────────────
