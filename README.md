@@ -35,6 +35,7 @@ The setup script installs required packages, initializes submodules, installs sh
 | `gdperf`, `gdheap` | CPU profile (perf + hotspot) / heap profile (heaptrack) of the game |
 | `cmprofile`, `perfstat bin` | RelWithDebInfo + frame pointers build; perf counters over 5 runs |
 | `perf-allow` | allow unprivileged perf until reboot |
+| `netem wifi\|dsl\|mobile\|bad`, `netem set 40 8 1`, `netem off` | add latency, jitter, loss and rate limits to loopback (RTT ≈ 2× delay) |
 
 Set `GODOT=/path/to/godot` in a `local_changes.*` file if it is not on `PATH`.
 Install Godot with `GODOT_VER=4.x.y-stable bash setup.bash`.

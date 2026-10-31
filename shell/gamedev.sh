@@ -225,3 +225,43 @@ cmprofile() {
         -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer" \
         "$@" && cmake --build "$src/build-profile"
 }
+
+# ─── Network conditions (for gdmulti / local client+server) ─────────────────
+
+# Shape loopback traffic with tc netem. Applies to *every* packet on the
+# interface in each direction, so on lo the RTT is ~2x the delay.
+# Usage: netem lan|wifi|dsl|mobile|bad      presets (one-way delay)
+#        netem set DELAY_MS [JITTER_MS] [LOSS_%] [RATE]   e.g. netem set 40 8 1 10mbit
+#        netem off | netem status
+# Env: NETEM_DEV (default lo)
+netem() {
+    local dev="${NETEM_DEV:-lo}" d j l r
+    case "${1:-status}" in
+        lan) d=1 j=0 l=0 ;;
+        wifi) d=10 j=5 l=0.5 ;;
+        dsl) d=25 j=4 l=0.2 ;;
+        mobile) d=50 j=20 l=1 r=5mbit ;;
+        bad) d=120 j=40 l=4 r=1mbit ;;
+        set) d="${2:?delay ms}" j="${3:-0}" l="${4:-0}" r="${5:-}" ;;
+        off)
+            sudo tc qdisc del dev "$dev" root 2>/dev/null
+            echo "netem: off on $dev"
+            return 0
+            ;;
+        status)
+            tc qdisc show dev "$dev"
+            return 0
+            ;;
+        *)
+            echo "usage: netem lan|wifi|dsl|mobile|bad|set D [J] [L] [RATE]|off|status" >&2
+            return 1
+            ;;
+    esac
+    # Build args positionally (no word splitting, so it behaves the same in zsh).
+    set -- delay "${d}ms"
+    [ "$j" != 0 ] && set -- "$@" "${j}ms" distribution normal
+    set -- "$@" loss "${l}%"
+    [ -n "$r" ] && set -- "$@" rate "$r"
+    sudo tc qdisc replace dev "$dev" root netem "$@" &&
+        echo "netem: $dev delay ${d}ms±${j}ms loss ${l}%${r:+ rate $r} (RTT on lo ≈ 2×)"
+}
