@@ -260,15 +260,20 @@ core_tools() {
         fi
     fi
 
-    # Needed by nvim-treesitter (main branch) to build parsers.
+    # Needed by nvim-treesitter (main branch) to build parsers; it requires
+    # tree-sitter-cli >= 0.25, so take the latest release, not a pinned 0.24.
     if need tree-sitter tree-sitter-cli x86; then
-        curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/download/v0.24.6/tree-sitter-linux-x64.gz" |
+        curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-x64.gz" |
             gunzip >"$HOME/.local/bin/tree-sitter"
         chmod +x "$HOME/.local/bin/tree-sitter"
     fi
 
+    # The release installer directly, with ATUIN_NO_MODIFY_PATH=1: setup.atuin.sh
+    # appends PATH and `atuin init` lines to ~/.bashrc/~/.zshrc, which are
+    # symlinks into this repo (shell/plugins_common.sh already does both).
     if need atuin; then
-        curl --proto '=https' --tlsv1.2 -sSf https://setup.atuin.sh | sh
+        curl --proto '=https' --tlsv1.2 -LsSf https://github.com/atuinsh/atuin/releases/latest/download/atuin-installer.sh |
+            ATUIN_NO_MODIFY_PATH=1 sh
     fi
 
     git_clone_once https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
