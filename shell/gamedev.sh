@@ -90,6 +90,9 @@ gdmulti() {
     # shellcheck disable=SC2064,SC2086
     trap "kill $pids 2>/dev/null; trap - INT" INT
     wait
+    # The trap is shell-wide; without this, after a normal exit the next C-c at
+    # the prompt would `kill` the old PIDs, which may since belong to others.
+    trap - INT
 }
 
 # ─── Debugging the GDExtension (godot is the host process) ───────────────────
