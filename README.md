@@ -1,54 +1,67 @@
 # dotfiles
 
-Personal Debian/Ubuntu-oriented dotfiles for Bash, Zsh, Git, tmux and Neovim.
+Debian/Ubuntu dotfiles for Bash, Zsh, Git, tmux, kitty and Neovim, with a C/C++
+and Godot game-dev toolset on top. Everything optional is behind a module flag or
+a switch in an untracked local file, so you can take only the parts you want.
 
-## Installation
+## What's in it
 
-Run `bash path_to_repository/setup.bash` from anywhere.
+| Part | Files | Highlights |
+| --- | --- | --- |
+| Shell | `bashrc`, `zshrc`, `shell/`, `bash/`, `zsh/` | vi line editing, zoxide, fzf/fzf-tab, atuin history, autosuggestions, syntax highlighting |
+| Neovim (>= 0.11) | `nvim/` | lazy.nvim, native `vim.lsp` (clangd, vtsls, GDScript), nvim-cmp, conform (formats changed lines only), DAP (codelldb, Godot), neotest, iron REPLs, Telescope, Harpoon |
+| tmux / kitty | `tmux/`, `kitty/` | `C-Space` prefix, vim-tmux-navigator, resurrect/continuum, Catppuccin Mocha |
+| Git | `git/` | many aliases, delta pager, LFS filter, global pre-commit hook (`git/template`) |
+| C/C++ | `gdb/`, `lldb/`, `clangd/`, `shell/aliases.sh` | debugger defaults, clangd user config, CMake aliases |
+| Game dev (opt-in) | `shell/gamedev.sh`, `nvim/lua/gamedev.lua`, `bin/godot-nvim` | Godot runners, tests, multiplayer and network simulation, profiling, crash triage, balance sims |
+| AI (opt-in module) | `shell/aliases.sh`, tmux, `nvim/lua/plugins.lua` | aichat in shell/tmux, CodeCompanion in Neovim |
 
-The setup script installs required packages, initializes submodules, installs shell/editor tooling, and links the config files into `$HOME`.
+## Install
 
-## Includes
+```bash
+git clone --recurse-submodules https://github.com/GunGro/dotfiles ~/dotfiles
+bash ~/dotfiles/setup.bash --dry-run        # see what would change
+bash ~/dotfiles/setup.bash                  # core + dev
+```
 
-- Bash and Zsh configuration
-- Shared shell aliases and functions
-- Zsh completions and syntax highlighting
-- Neovim configuration using `lazy.nvim`
-- tmux configuration with TPM plugins
-- Git configuration and global ignore rules
-- Modern CLI tooling: zoxide, eza, btop, lazygit, git-delta
-- Game dev (Godot 4 + C++ GDExtension): shell helpers (`shell/gamedev.sh`),
-  GDScript LSP/DAP and Godot-hosted C++ debugging in Neovim (`nvim/lua/gamedev.lua`),
-  gdb/lldb/clangd configs, Godot external-editor bridge (`bin/godot-nvim`)
-
-## Game dev quick reference
-
-| Command | Does |
+| Flag | Installs |
 | --- | --- |
-| `gdr` / `gde` / `gdh` | run game / editor / headless (`--path` = nearest `project.godot`) |
-| `gdimport`, `gdcheck f.gd`, `gdlintall` | import assets, parse-check, gdlint all |
-| `gdtest`, `gdwatch` | GUT/gdUnit4 headless tests, rerun on change |
-| `gdmulti N` | N tiled instances for multiplayer testing (`-- --instance=i`) |
-| `gdgdb` / `gdlldb` / `gdbt` | Godot under gdb/lldb; batch backtrace on crash |
-| `cmb [preset]`, `cmt`, `cmasan`, `cmwatch` | CMake build, ctest, ASan+UBSan, watch |
-| `gdsession` | tmux: nvim, build watch, editor log |
-| `gdperf`, `gdheap` | CPU profile (perf + hotspot) / heap profile (heaptrack) of the game |
-| `cmprofile`, `perfstat bin` | RelWithDebInfo + frame pointers build; perf counters over 5 runs |
-| `perf-allow` | allow unprivileged perf until reboot |
-| `netem wifi\|dsl\|mobile\|bad`, `netem set 40 8 1`, `netem off` | add latency, jitter, loss and rate limits to loopback (RTT ≈ 2× delay) |
-| `gdsim res://sim.gd [args]`, `simview` | headless sim → `.sims/*.csv` (script gets `--out=`), open newest in visidata |
-| `jl`, `jlt`, `Rq` | Julia with the nearest project / run its tests; quiet R |
-| `gdcores`, `gdcore [pid]`, `gdcorebt` | list Godot crashes / open newest core in gdb / print all-thread backtrace |
-| `gdlogs [-f]` | Godot's `user://logs/godot.log` for this project |
+| *(none)* | `--core --dev` |
+| `--core` | shell tools, tmux, Neovim >= 0.11, lazygit, delta, eza, atuin, and the config symlinks |
+| `--dev` | cmake, ninja, clang/clangd, gdb/lldb, ccache, mold, git-lfs, node, rust, typos, yq, watchexec; debugger configs and git hooks |
+| `--ai` | aichat with a key-less config template, Ollama |
+| `--gamedev` | perf, hotspot, heaptrack, systemd-coredump, gdtoolkit, visidata, the Godot editor bridge; Godot itself with `GODOT_VER=4.x.y-stable` |
+| `--all` | all of the above |
+| `--links-only` | only the symlinks (use on other distros after installing tools yourself) |
+| `--dry-run` | print the plan, change nothing |
 
-Global pre-commit hook (`git/template/hooks/pre-commit`): gdformat/gdlint on staged `.gd`, clang-format on staged C++ (only if the repo has `.clang-format`), and a block on files over 1 MiB that are not in LFS. New clones get it automatically; run `git init` once in existing repos. Skip with `git commit --no-verify`.
+Requirements: `sudo`, `git` and `curl`. Packages come from apt; a few tools are
+prebuilt x86_64 binaries and are skipped with a warning on other architectures.
+Re-running is safe: installed tools are skipped, and any existing file the
+script replaces with a symlink is first moved to `<file>.bak.<timestamp>`.
 
-Set `GODOT=/path/to/godot` in a `local_changes.*` file if it is not on `PATH`.
-Install Godot with `GODOT_VER=4.x.y-stable bash setup.bash`.
+Try it without touching your machine:
 
-## Local changes
+```bash
+docker run --rm -it -v "$PWD":/root/dotfiles ubuntu:24.04 \
+    bash -c 'apt-get update -qq && apt-get install -y -qq sudo git curl && bash /root/dotfiles/setup.bash && exec zsh'
+```
 
-Use the `*_local` and `local_*` files for machine-specific changes. These files are ignored by Git.
+## Local, untracked files
+
+| File | Use |
+| --- | --- |
+| `shell/local_env.sh` | switches read first by both shells (created from `local_env.sh.example`): `DOTFILES_GAMEDEV=1`, `DOTFILES_PERSONAL=1`, `GODOT=…` |
+| `shell/local.d/*.sh` | anything machine- or project-specific; every file is sourced |
+| `shell/local_{aliases,functions,changes}.sh` | shared by Bash and Zsh |
+| `{bash,zsh}/local_{aliases,functions,changes}.{bash,zsh}` | per shell |
+| `~/.gitconfig_local` | git name, email and machine settings (created from `git/gitconfig_local.example`) |
+
+All of these are git-ignored. `local_changes.*` is sourced last, so it can override anything.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Submodules under `zsh/plugins/` and `shell/plugins/` keep their own licenses.
 
 ## Cheat sheet
 
@@ -61,13 +74,12 @@ Both shells use vi line editing (`bindkey -v` / `set -o vi`): you start in inser
 | Shortcut | What it does |
 | --- | --- |
 | `..` / `...` | Up one / two directories |
-| `z <part>` | zoxide: jump to the most used directory matching `<part>` (`z athen`) |
+| `z <part>` | zoxide: jump to the most used directory matching `<part>` (`z dotf`) |
 | `zi` | zoxide with an interactive fzf picker |
 | `cdgr` | cd to the root of the current git repository |
 | `ls` `l` `la` `ll` `lt` | eza listings: plain, classified, with hidden, long with git status, tree two levels deep |
 | `c` | clear the screen |
-| `e` | exit the shell |
-| `s` | `shutdown -h`: power off in one minute (`shutdown -c` cancels) |
+| `e` / `s` | exit / `shutdown -h` (power off in a minute, `shutdown -c` cancels); only with `DOTFILES_PERSONAL=1` |
 | `top` | btop |
 | `vim` `vi` `v` | all open Neovim |
 | `sshx host` | ssh with X11 forwarding |
@@ -169,7 +181,7 @@ Archives and misc:
 | `empty-tree-hash` | hash of the empty tree |
 | `cleanall` | `clean -fdx`: deletes every untracked and ignored file. Destructive. |
 
-Defaults worth knowing: `pull` is fast-forward only, `push` sets the upstream automatically, the pager is delta (side by side, `n`/`N` jump between files), new repositories start on `master`, and your name and email live in `~/.gitconfig_local`.
+Defaults worth knowing: `pull` is fast-forward only, `push` sets the upstream automatically, the pager is delta (side by side, `n`/`N` jump between files), new repositories start on `master`, your name and email live in `~/.gitconfig_local`, and the Git LFS filter is preconfigured (run `git lfs install` inside a repository to add its hooks).
 
 ### tmux
 
@@ -247,6 +259,21 @@ Debugging, tasks, math and AI:
 | `<leader>aa` | AI actions menu |
 | `<leader>ae` / `<leader>ar` / `<leader>af` in visual mode | AI explain / review / fix the selection |
 
+Godot and C++ (`nvim/lua/gamedev.lua`). GDScript LSP and debugging talk to the running Godot editor (ports 6005 and 6006):
+
+| Keys | What it does |
+| --- | --- |
+| `<leader>Gr` / `<leader>Ge` / `<leader>Gs` | run the game / open the editor / run the current scene |
+| `<leader>Gt` / `<leader>Gb` | run GDScript tests (`gdtest`) / build with CMake (`cmb`) |
+| `<leader>ch` | switch between C++ source and header (clangd) |
+| `<leader>ih` | toggle inlay hints |
+| `<leader>B` | conditional breakpoint |
+| `<leader>Dl` / `<leader>Dr` / `<leader>Dt` | debugger: run last / REPL / terminate |
+| `F5` in a `.gd` file | debug the main or current scene through the editor |
+| `F5` in a C++ file | pick "Godot: run game / editor / headless (GDExtension)", "Attach to Godot" or a test binary |
+
+Inside a Godot project Neovim listens on `$XDG_RUNTIME_DIR/godot-nvim.sock`. Set Godot's external editor (Editor Settings → Text Editor → External) to `~/.local/bin/godot-nvim` with flags `{file} {line} {col}` and scripts open in that Neovim.
+
 Tests (neotest: ctest adapter for C++, pytest for Python sims):
 
 | Keys | What it does |
@@ -267,22 +294,55 @@ REPLs for balance sims (iron.nvim; Python uses IPython, Julia `--project=@.`, R)
 | `<leader>sb` / `<leader>sn` | send cell / send cell and jump to the next |
 | `<leader>s<space>` / `<leader>sx` | interrupt / clear |
 
-### Athenebra helpers (machine-local)
+### Game dev (`DOTFILES_GAMEDEV=1`)
 
-`~/.config/shell/local_athenebra.sh` is not in this repository; `zshrc` and `bashrc` source it when it exists.
+The commands find the Godot project themselves (the nearest `project.godot`, or the shallowest one under the git root) and use `$GODOT` (default `godot`).
+
+Run and test:
 
 | Command | What it does |
 | --- | --- |
-| `ath` | cd to the Athenebra repository |
-| `ath-lint` | ruff, ruff format check, mypy |
-| `ath-test [args]` | pytest with the test database (integration tests included) |
-| `ath-check` | `ath-lint` and `ath-test`: what CI runs |
-| `ath-apply p.diff …` | check that all patches apply, apply them, `uv sync`, `ath-check` |
-| `ath-migrate` | database upgrade as the owner role, re-run `roles.sql`, `alembic check` |
-| `ath-snapshot` | today's data snapshot with readable logs and the exit code |
-| `ath-qc [--as-of T]` | data-quality gates |
-| `ath-status` | row counts and freshness per table |
-| `ath-psql [role]` | psql into the database (default role `athenebra_ro`) |
-| `ath-sql 'SELECT …'` | one read-only query |
-| `ath-raw ID\|SHA` | first bytes of a stored raw response |
-| `ath-logs` | journal of the snapshot service |
+| `gdr` / `gde` / `gdh [args]` | run the game / open the editor / run headless |
+| `cdgd` | cd to the Godot project |
+| `gdimport` | import assets headless, then exit |
+| `gds script.gd` / `gdcheck script.gd` | run a script / parse-check it |
+| `gdlintall` | gdlint every `.gd` file (skips `addons/`) |
+| `gdverbose` | run with `--verbose --debug` |
+| `gdtest [args]` / `gdwatch` | GUT or gdUnit4 tests headless / rerun them on every `.gd` change |
+| `gdmulti N [args]` | N tiled instances for multiplayer; each gets `-- --instance=i`, logs in `/tmp/gd-instance-i.log`, `C-c` stops all |
+| `netem wifi\|dsl\|mobile\|bad` | add latency, jitter, loss and a rate limit to loopback (round trip ≈ 2× the delay) |
+| `netem set 40 8 1 10mbit` / `netem off` / `netem status` | custom delay ms, jitter ms, loss %, rate / remove / show |
+| `gdsession [name]` | tmux session: Neovim, build watcher, editor log |
+
+C++ (GDExtension and sim core). The environment defaults to Ninja, `compile_commands.json`, ccache and parallel builds:
+
+| Command | What it does |
+| --- | --- |
+| `cmb [preset\|Debug\|Release]` | configure and build; uses `CMakePresets.json` if present, otherwise `build[-type]/` and links `compile_commands.json` to the root |
+| `cmt [-R regex]` | ctest in `build/`, output on failure |
+| `cmasan` | ASan + UBSan build in `build-asan/` and run its tests |
+| `cmprofile` | RelWithDebInfo with frame pointers in `build-profile/` |
+| `cmwatch` | rebuild and test on every C++/CMake change |
+
+Debugging, profiling and crashes:
+
+| Command | What it does |
+| --- | --- |
+| `gdgdb` / `gdlldb [args]` | Godot under gdb / lldb; extension breakpoints stay pending until the `.so` loads |
+| `gdbt [args]` | run under gdb until it crashes, print every thread's backtrace |
+| `gdcores` / `gdcore [pid]` / `gdcorebt` | list Godot core dumps / open the newest in gdb / print its full backtrace |
+| `gdlogs [-f]` | Godot's own `user://logs/godot.log` for the project (`-f` follows) |
+| `gdperf [args]` | CPU profile with perf (DWARF call graphs), opens hotspot |
+| `gdheap [args]` | heap profile with heaptrack |
+| `perfstat bin [args]` | hardware counters over 5 runs |
+| `perf-allow` | allow perf for your user until reboot |
+
+Balance sims:
+
+| Command | What it does |
+| --- | --- |
+| `gdsim res://sim.gd [args]` | run a sim script headless; it gets `-- --out=FILE` and its CSV lands in `.sims/` (git-ignored) |
+| `simview [file.csv]` | open the newest (or given) sim CSV in visidata |
+| `jl` / `jlt` / `Rq` | Julia with the nearest project / run its tests / quiet R |
+
+The global pre-commit hook (dev module) runs gdformat and gdlint on staged `.gd` files, clang-format on staged C++ when the repository has a `.clang-format`, and blocks files over 1 MiB that are not tracked by Git LFS. New clones get it automatically; run `git init` once in an existing repository. Skip it with `git commit --no-verify` or `SKIP_HOOKS=1`.
