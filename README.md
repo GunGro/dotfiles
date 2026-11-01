@@ -9,7 +9,7 @@ a switch in an untracked local file, so you can take only the parts you want.
 | Part | Files | Highlights |
 | --- | --- | --- |
 | Shell | `bashrc`, `zshrc`, `shell/`, `bash/`, `zsh/` | vi line editing, zoxide, fzf/fzf-tab, atuin history, autosuggestions, syntax highlighting |
-| Neovim (>= 0.11) | `nvim/` | lazy.nvim, native `vim.lsp` (clangd, vtsls, GDScript), nvim-cmp, conform (formats changed lines only), DAP (codelldb, Godot), neotest, iron REPLs, Telescope, Harpoon |
+| Neovim (>= 0.11) | `nvim/` | lazy.nvim, native `vim.lsp` (clangd, vtsls, GDScript), blink.cmp, conform (formats changed lines only), DAP (codelldb, Godot), neotest, iron REPLs, Telescope, Harpoon |
 | tmux / kitty | `tmux/`, `kitty/` | `C-Space` prefix, vim-tmux-navigator, resurrect/continuum, Catppuccin Mocha |
 | Git | `git/` | many aliases, delta pager, LFS filter, global pre-commit hook (`git/template`) |
 | C/C++ | `gdb/`, `lldb/`, `clangd/`, `shell/aliases.sh` | debugger defaults, clangd user config, CMake aliases |
@@ -248,7 +248,7 @@ Code (LSP, diagnostics, completion):
 | `<leader>e` or `<leader>d` | show the diagnostic under the cursor |
 | `[d` / `]d` | previous / next diagnostic |
 | `C-Space` (insert) | open completion (twice inside tmux) |
-| `Tab` / `Enter` / `C-e` | next item / confirm / close completion |
+| `Tab` / `S-Tab` / `Enter` / `C-e` | next / previous item (or snippet field) / confirm (the first item is preselected) / close completion |
 | `C-b` / `C-f` | scroll the completion docs |
 
 On save, conform formats only the lines you changed in git-tracked files, and the whole file otherwise (clang-format, stylua, prettier and others). `:FormatMode full` formats whole files, `:FormatMode off` disables it for the buffer, `:FormatMode auto` restores the default.

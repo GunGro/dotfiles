@@ -120,13 +120,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
--- ─── Shared LSP capabilities (enables full nvim-cmp completion features) ────
+-- ─── Shared LSP capabilities (completion features from blink.cmp) ──────────
 -- vim.lsp.config("*") is merged into every server (here, plugins.lua and
 -- gamedev.lua), so no per-server capabilities tables.
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-if pcall(require, "cmp_nvim_lsp") then
-	capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+local ok_blink, blink = pcall(require, "blink.cmp")
+if ok_blink then
+	capabilities = blink.get_lsp_capabilities(capabilities)
 end
 vim.lsp.config("*", { capabilities = capabilities })
 

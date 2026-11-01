@@ -38,7 +38,7 @@ return {
 				flavour = "mocha", -- mocha (darkest), macchiato, frappe, latte (light)
 				transparent_background = false,
 				integrations = {
-					cmp = true,
+					blink_cmp = true,
 					gitsigns = true,
 					telescope = true,
 					treesitter = true,
@@ -268,53 +268,45 @@ return {
 	},
 
 	-- ─── Completion ───────────────────────────────────────────────────────────
+	-- blink.cmp: LSP/path/snippet/buffer sources, signature help and auto
+	-- brackets built in (replaces nvim-cmp + 4 source plugins + the autopairs
+	-- confirm hook). version = "1.*" pulls the prebuilt Rust fuzzy matcher
+	-- from the release tag; without it, blink falls back to its Lua matcher.
 	{
-		"hrsh7th/nvim-cmp",
+		"saghen/blink.cmp",
+		version = "1.*",
 		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-path",
-			"L3MON4D3/LuaSnip",
-			"saadparwaiz1/cmp_luasnip",
+			{ "L3MON4D3/LuaSnip", version = "v2.*" },
 		},
-		config = function()
-			local cmp = require("cmp")
-			local luasnip = require("luasnip")
-
-			cmp.setup({
-				snippet = {
-					expand = function(args)
-						luasnip.lsp_expand(args.body)
-					end,
-				},
-				mapping = cmp.mapping.preset.insert({
-					["<C-b>"] = cmp.mapping.scroll_docs(-4),
-					["<C-f>"] = cmp.mapping.scroll_docs(4),
-					["<C-Space>"] = cmp.mapping.complete(),
-					["<C-e>"] = cmp.mapping.abort(),
-					["<CR>"] = cmp.mapping.confirm({ select = true }),
-					["<Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_next_item()
-						elseif luasnip.expand_or_jumpable() then
-							luasnip.expand_or_jump()
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
-				}),
-				sources = cmp.config.sources({
-					{ name = "nvim_lsp" },
-					{ name = "luasnip" },
-					{ name = "buffer" },
-					{ name = "path" },
-				}),
-			})
-
-			-- Wire autopairs into cmp: auto-insert () after accepting a function completion
-			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-			cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
-		end,
+		opts = {
+			-- Same keys as the old nvim-cmp setup.
+			keymap = {
+				preset = "none",
+				["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
+				["<C-e>"] = { "hide", "fallback" },
+				["<CR>"] = { "accept", "fallback" },
+				["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
+				["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
+				["<C-n>"] = { "select_next", "fallback" },
+				["<C-p>"] = { "select_prev", "fallback" },
+				["<C-b>"] = { "scroll_documentation_up", "fallback" },
+				["<C-f>"] = { "scroll_documentation_down", "fallback" },
+			},
+			snippets = { preset = "luasnip" },
+			sources = {
+				default = { "lsp", "path", "snippets", "buffer" },
+			},
+			completion = {
+				-- <CR> with nothing selected takes the first item (cmp's select = true)
+				list = { selection = { preselect = true, auto_insert = false } },
+				-- () after accepting a function/method (was nvim-autopairs' cmp hook)
+				accept = { auto_brackets = { enabled = true } },
+				documentation = { auto_show = true, auto_show_delay_ms = 250 },
+			},
+			signature = { enabled = true },
+			fuzzy = { implementation = "prefer_rust_with_warning" },
+		},
+		opts_extend = { "sources.default" },
 	},
 
 	-- ─── Formatting ───────────────────────────────────────────────────────────
