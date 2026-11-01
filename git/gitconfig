@@ -60,7 +60,7 @@
 	fmp = !git fetch origin && git merge origin/HEAD --no-edit && git push
 
 [init]
-	defaultBranch = master
+	defaultBranch = main
 	# Global hooks (pre-commit: gdformat/gdlint, clang-format, LFS size guard).
 	# Unlike core.hooksPath this keeps per-repo hooks such as Git LFS's.
 	templateDir = ~/.config/git/template

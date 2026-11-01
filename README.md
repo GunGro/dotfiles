@@ -84,7 +84,8 @@ Both shells use vi line editing (`bindkey -v` / `set -o vi`): you start in inser
 | `vim` `vi` `v` | all open Neovim |
 | `sshx host` | ssh with X11 forwarding |
 | `lg` | lazygit |
-| `gag pattern` | `ag` (the silver searcher) run from the repository root |
+| `gag pattern` | ripgrep (`rg`) run from the repository root |
+| `PR_SHOW_GIT=false` | hide git status in the Bash prompt (it runs `git status` synchronously per prompt) |
 | `path_prepend dir` / `path_append dir` / `path_remove dir` | edit `$PATH` without duplicates |
 | `zbench [N]` / `zbench -p` | Zsh startup time (mean of N runs) / zprof breakdown |
 | `compreset` | rebuild the cached Zsh completion dump (after adding completions) |
@@ -176,7 +177,7 @@ Branches, remotes and merging:
 | `f` / `fa` | fetch with tags and prune / from all remotes |
 | `ff` / `noff` | merge fast-forward only / always with a merge commit |
 | `pullrb` | pull with rebase (plain `pull` is fast-forward only) |
-| `fmp` | fetch, merge `origin/master`, push (only for repositories whose branch is `master`) |
+| `fmp` | fetch, merge the remote default branch (`origin/HEAD`), push |
 | `mirror-remote from to` | push all branches of remote `from` to remote `to` |
 | `update-submodules` / `upgrade-submodules` | init and check out pinned submodules / move them to their remote's latest |
 
@@ -189,7 +190,7 @@ Archives and misc:
 | `empty-tree-hash` | hash of the empty tree |
 | `cleanall` | `clean -fdx`: deletes every untracked and ignored file. Destructive. |
 
-Defaults worth knowing: `pull` is fast-forward only, `push` sets the upstream automatically, the pager is delta (side by side, `n`/`N` jump between files), new repositories start on `master`, your name and email live in `~/.gitconfig_local`, and the Git LFS filter is preconfigured (run `git lfs install` inside a repository to add its hooks).
+Defaults worth knowing: `pull` is fast-forward only, `push` sets the upstream automatically, the pager is delta (side by side, `n`/`N` jump between files), new repositories start on `main`, your name and email live in `~/.gitconfig_local`, and the Git LFS filter is preconfigured (run `git lfs install` inside a repository to add its hooks).
 
 ### tmux
 
