@@ -1,0 +1,6 @@
+# ~/.gitconfig_local: identity and machine-specific git settings (included
+# from git/gitconfig; not tracked). setup.bash copies this file once.
+[user]
+	name = Your Name
+	# Tip: your GitHub noreply address keeps your mail out of public history.
+	email = you@example.com
