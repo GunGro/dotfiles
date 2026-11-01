@@ -21,9 +21,6 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
-# Edit command line in $EDITOR
-autoload -Uz edit-command-line
-zle -N edit-command-line
 
 setopt interactivecomments
 
@@ -49,6 +46,12 @@ export VISUAL=nvim
 
 # Vim-style line editing
 bindkey -v
+
+# Edit the command line in $EDITOR: `v` in normal mode (as in bash's vi mode).
+# The widget was defined before but never bound to a key.
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd v edit-command-line
 
 disable r 2>/dev/null || true
 unsetopt BEEP

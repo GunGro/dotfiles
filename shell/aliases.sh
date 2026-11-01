@@ -56,7 +56,7 @@ alias lg='lazygit'
 
 
 # git root
-alias cdgr='cd $(git root)'
+alias cdgr='cd "$(git root)"'
 
 # ssh
 alias sshx="ssh -X"
