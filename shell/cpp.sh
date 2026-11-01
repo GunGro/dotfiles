@@ -38,7 +38,6 @@ alias cdsrc='cd "$(cpp_src)"'
 
 # ─── CMake ───────────────────────────────────────────────────────────────────
 
-
 # Configure + build + link compile_commands.json. Uses CMakePresets.json if present.
 # Usage: cmb [preset|build-type]   (default: debug / Debug)
 cmb() {
@@ -71,7 +70,7 @@ cmasan() {
         "$@" && cmake --build "$src/build-asan" && ctest --test-dir "$src/build-asan"
 }
 
-# Rebuild + run tests on every C++/CMake change; GDScript changes rerun gdtest.
+# Rebuild + run tests on every C++/CMake change.
 cmwatch() {
     command -v watchexec >/dev/null 2>&1 || { echo "cmwatch: watchexec missing" >&2; return 1; }
     watchexec -w "$(cpp_src)" -e cpp,hpp,h,cc,inl,cmake,txt -i 'build*/**' \
@@ -233,7 +232,7 @@ cxsession() {
         return
     fi
     tmux new-session -d -s "$name" -c "$src" "nvim; $SHELL"
-    tmux split-window -h -p 40 -t "$name" -c "$src"
+    tmux split-window -h -l 40% -t "$name" -c "$src"
     tmux send-keys -t "$name" "cmwatch" C-m
     tmux split-window -v -t "$name" -c "$src"
     [ -n "$run" ] && tmux send-keys -t "$name" "$run" C-m

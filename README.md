@@ -200,6 +200,7 @@ The prefix is `C-Space`. Press `C-Space` twice to send a literal `C-Space` to th
 | `<prefix> \|` / `<prefix> -` | split side by side / top and bottom, in the current directory |
 | `<prefix> h j k l` | move between panes |
 | `C-h C-j C-k C-l` | move between tmux panes and Neovim windows seamlessly (vim-tmux-navigator) |
+| `<prefix> C-l` | clear the screen (plain `C-l` is taken by the navigator) |
 | `<prefix> r` | reload `~/.tmux.conf` |
 | `<prefix> L` | lazygit in a popup |
 | `<prefix> A` | aichat in a pane on the right (25 % wide) |

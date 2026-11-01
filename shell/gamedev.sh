@@ -119,7 +119,7 @@ gdsession() {
         return
     fi
     tmux new-session -d -s "$name" -c "$src" "nvim; $SHELL"
-    tmux split-window -h -p 40 -t "$name" -c "$src"
+    tmux split-window -h -l 40% -t "$name" -c "$src"
     tmux send-keys -t "$name" "cmwatch" C-m
     tmux split-window -v -t "$name" -c "$root"
     tmux send-keys -t "$name" "gde 2>&1 | tee /tmp/godot-editor.log" C-m
