@@ -5,6 +5,11 @@ case $- in
     *) return ;;
 esac
 
+# Machine-local switches (DOTFILES_GAMEDEV, DOTFILES_PERSONAL, ...), read first
+if [ -f "$HOME/.config/shell/local_env.sh" ]; then
+    source "$HOME/.config/shell/local_env.sh"
+fi
+
 # Settings
 source "$HOME/.config/bash/settings.bash"
 
@@ -30,9 +35,12 @@ if [ -f "$HOME/.config/bash/local_functions.bash" ]; then
     source "$HOME/.config/bash/local_functions.bash"
 fi
 
-if [ -f "$HOME/.config/shell/local_athenebra.sh" ]; then
-    source "$HOME/.config/shell/local_athenebra.sh"
-fi
+# Machine-local extras: every *.sh in shell/local.d/ (not tracked by git)
+for f in "$HOME"/.config/shell/local.d/*.sh; do
+    # shellcheck source=/dev/null
+    [ -f "$f" ] && source "$f"
+done
+unset f
 
 # Custom prompt
 source "$HOME/.config/bash/prompt.bash"

@@ -1,0 +1,15 @@
+# Machine-local switches. Copied to shell/local_env.sh by setup.bash (not tracked).
+# Sourced first by bashrc/zshrc, so values here decide what the rest loads.
+
+# Godot / GDExtension helpers (shell/gamedev.sh). Also exports CMake defaults
+# (Ninja, compile_commands, ccache), ASan/UBSan options and runs `ulimit -c unlimited`.
+# export DOTFILES_GAMEDEV=1
+
+# One-letter shortcuts from shell/personal.sh (s = shutdown -h, e = exit).
+# export DOTFILES_PERSONAL=1
+
+# Godot binary, if it is not `godot` on PATH.
+# export GODOT="$HOME/.local/bin/godot"
+
+# Anything machine-specific beyond this: put *.sh files in shell/local.d/
+# (sourced after aliases/functions) or use the local_changes.* files (sourced last).

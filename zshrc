@@ -1,3 +1,8 @@
+# Machine-local switches (DOTFILES_GAMEDEV, DOTFILES_PERSONAL, ...), read first
+if [ -f "$HOME/.config/shell/local_env.sh" ]; then
+    source "$HOME/.config/shell/local_env.sh"
+fi
+
 # External plugins initialized before compinit
 source "$HOME/.config/zsh/plugins_before.zsh"
 
@@ -26,9 +31,12 @@ if [ -f "$HOME/.config/zsh/local_functions.zsh" ]; then
     source "$HOME/.config/zsh/local_functions.zsh"
 fi
 
-if [ -f "$HOME/.config/shell/local_athenebra.sh" ]; then
-    source "$HOME/.config/shell/local_athenebra.sh"
-fi
+# Machine-local extras: every *.sh in shell/local.d/ (not tracked by git)
+for f in "$HOME"/.config/shell/local.d/*.sh(N); do
+    # shellcheck source=/dev/null
+    [ -f "$f" ] && source "$f"
+done
+unset f
 
 # Custom prompt
 source "$HOME/.config/zsh/prompt.zsh"

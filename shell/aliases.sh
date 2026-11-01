@@ -53,9 +53,6 @@ alias c='clear'
 alias gag='git exec ag'
 alias lg='lazygit'
 
-# shutoff/exit shortcuts
-alias s='shutdown -h'
-alias e='exit'
 
 # git root
 alias cdgr='cd $(git root)'
@@ -79,7 +76,12 @@ aiexplain() {
     aichat "Explain this terminal output and suggest fixes if needed:" </dev/stdin
 }
 
-# Game dev (Godot / GDExtension) helpers
-if [ -f "$HOME/.config/shell/gamedev.sh" ]; then
+# Optional parts, switched on in shell/local_env.sh (see local_env.sh.example).
+# Game dev (Godot / GDExtension) helpers; also sets CMake/ccache env and ulimit -c.
+if [ "${DOTFILES_GAMEDEV:-0}" = 1 ] && [ -f "$HOME/.config/shell/gamedev.sh" ]; then
     . "$HOME/.config/shell/gamedev.sh"
+fi
+# Personal one-letter shortcuts that are easy to trigger by accident.
+if [ "${DOTFILES_PERSONAL:-0}" = 1 ] && [ -f "$HOME/.config/shell/personal.sh" ]; then
+    . "$HOME/.config/shell/personal.sh"
 fi
