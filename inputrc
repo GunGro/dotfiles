@@ -1,1 +1,12 @@
+# Keep the distribution's bindings (Home/End, Ctrl+arrows, ...): readline
+# skips /etc/inputrc entirely once ~/.inputrc exists.
+$include /etc/inputrc
+
 set show-mode-in-prompt on
+
+# Completion: list immediately instead of on the second Tab, colour by type,
+# mark directories/symlinks like `ls -F`.
+set show-all-if-ambiguous on
+set colored-stats on
+set visible-stats on
+set mark-symlinked-directories on
