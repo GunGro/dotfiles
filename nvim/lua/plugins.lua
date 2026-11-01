@@ -185,12 +185,20 @@ return {
 			})
 			vim.treesitter.language.register("godot_resource", "gdresource")
 
-			-- Start highlighting + indent per-buffer for these filetypes
+			-- Start highlighting + indent per-buffer for these filetypes. Patterns
+			-- are filetypes, not parser names: shell scripts are "sh" and TSX is
+			-- "typescriptreact" (Neovim maps both to the bash/tsx parsers), so the
+			-- old "bash"/"tsx" entries never matched. pcall: the parser may still be
+			-- installing on first start.
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = { "c", "cpp", "lua", "python", "bash", "cmake", "typescript", "tsx", "javascript", "julia", "r" },
+				pattern = {
+					"c", "cpp", "lua", "python", "sh", "bash", "cmake",
+					"typescript", "typescriptreact", "javascript", "julia", "r",
+				},
 				callback = function()
-					vim.treesitter.start()
-					vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+					if pcall(vim.treesitter.start) then
+						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+					end
 				end,
 			})
 
@@ -326,6 +334,12 @@ return {
 					javascriptreact = { "prettier" },
 					typescriptreact = { "prettier" },
 					gdscript = { "gdformat" },
+					sh = { "shfmt" }, -- installed by mason, was never wired up
+				},
+				-- Match the repo's shell style: 4-space indent, indented case arms.
+				-- An .editorconfig in a project still wins (shfmt reads it).
+				formatters = {
+					shfmt = { prepend_args = { "-i", "4", "-ci" } },
 				},
 				-- no format_on_save here; the autocmd below handles it
 			})
@@ -379,23 +393,6 @@ return {
 			})
 		end,
 	},
-	-- {
-	-- 	"stevearc/conform.nvim",
-	-- 	config = function()
-	-- 		require("conform").setup({
-	-- 			formatters_by_ft = {
-	-- 				cpp = { "clang_format" },
-	-- 				c = { "clang_format" },
-	-- 				lua = { "stylua" },
-	-- 				sh = { "shfmt" },
-	-- 			},
-	-- 			format_on_save = {
-	-- 				timeout_ms = 500,
-	-- 				lsp_fallback = true,
-	-- 			},
-	-- 		})
-	-- 	end,
-	-- },
 
 	-- ─── Debugger (DAP) ─────────────────────────────────────────────────────────
 

@@ -245,13 +245,13 @@ Code (LSP, diagnostics, completion):
 | `K` | hover documentation |
 | `<leader>rn` | rename the symbol |
 | `<leader>ca` | code action |
-| `<leader>e` or `<leader>d` | show the diagnostic under the cursor |
+| `<leader>e` | show the diagnostic under the cursor |
 | `[d` / `]d` | previous / next diagnostic |
 | `C-Space` (insert) | open completion (twice inside tmux) |
 | `Tab` / `S-Tab` / `Enter` / `C-e` | next / previous item (or snippet field) / confirm (the first item is preselected) / close completion |
 | `C-b` / `C-f` | scroll the completion docs |
 
-On save, conform formats only the lines you changed in git-tracked files, and the whole file otherwise (clang-format, stylua, prettier and others). `:FormatMode full` formats whole files, `:FormatMode off` disables it for the buffer, `:FormatMode auto` restores the default.
+On save, conform formats only the lines you changed in git-tracked files, and the whole file otherwise (clang-format, stylua, prettier, shfmt and others). `:FormatMode full` formats whole files, `:FormatMode off` disables it for the buffer, `:FormatMode auto` restores the default.
 
 Debugging, tasks, math and AI:
 
