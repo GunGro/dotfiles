@@ -8,21 +8,40 @@ local M = {}
 local godot_bin = os.getenv("GODOT") or "godot"
 
 -- Godot project dir: ancestor of the current buffer/cwd with project.godot,
--- else the shallowest project.godot below cwd (repo/game/project.godot).
+-- else the shallowest project.godot at most 3 levels below the git root
+-- (repo/game/project.godot), like gd_root in shell/gamedev.sh.
+-- The old downward search had no depth limit and no git-root bound; it runs
+-- at every startup (socket below), so `nvim` from $HOME walked all of $HOME.
+local skip_dirs = { [".godot"] = true, addons = true, [".git"] = true, node_modules = true }
 function M.project_root()
 	local root = vim.fs.root(0, "project.godot") or vim.fs.root(vim.fn.getcwd(), "project.godot")
 	if root then
 		return root
 	end
-	local found = vim.fs.find("project.godot", {
-		path = vim.fn.getcwd(),
-		type = "file",
-		limit = 1,
-		skip = function(name)
-			return name ~= ".godot" and name ~= "addons" and name ~= ".git" and not name:match("^build")
+	local repo = vim.fs.root(vim.fn.getcwd(), ".git")
+	if not repo then
+		return nil
+	end
+	local best, best_depth
+	for name, type in vim.fs.dir(repo, {
+		depth = 3,
+		skip = function(dir)
+			local base = vim.fs.basename(dir)
+			return not (skip_dirs[base] or base:match("^build"))
 		end,
-	})
-	return found[1] and vim.fs.dirname(found[1]) or nil
+	}) do
+		if type == "file" and vim.fs.basename(name) == "project.godot" then
+			local _, depth = name:gsub("/", "")
+			if not best or depth < best_depth then
+				best, best_depth = name, depth
+			end
+		end
+	end
+	if not best then
+		return nil
+	end
+	local dir = vim.fs.dirname(best)
+	return dir == "." and repo or vim.fs.joinpath(repo, dir)
 end
 
 local function run_in_term(cmd)
@@ -181,7 +200,7 @@ if ok_dap then
 	vim.keymap.set("n", "<leader>B", function()
 		dap.set_breakpoint(vim.fn.input("Condition: "))
 	end, { desc = "Conditional breakpoint" })
-	-- <leader>D… (not <leader>d…, which would collide with the diagnostic float)
+	-- <leader>D… (<leader>d… is the DAP UI toggle in plugins.lua)
 	vim.keymap.set("n", "<leader>Dl", dap.run_last, { desc = "DAP run last" })
 	vim.keymap.set("n", "<leader>Dr", dap.repl.toggle, { desc = "DAP REPL" })
 	vim.keymap.set("n", "<leader>Dt", dap.terminate, { desc = "DAP terminate" })
