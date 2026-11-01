@@ -51,7 +51,7 @@ docker run --rm -it -v "$PWD":/root/dotfiles ubuntu:24.04 \
 
 | File | Use |
 | --- | --- |
-| `shell/local_env.sh` | switches read first by both shells (created from `local_env.sh.example`): `DOTFILES_GAMEDEV=1`, `DOTFILES_PERSONAL=1`, `GODOT=…` |
+| `shell/local_env.sh` | switches read first by both shells (created from `local_env.sh.example`): `DOTFILES_CPP=1`, `DOTFILES_GAMEDEV=1`, `DOTFILES_PERSONAL=1`, `CONDA_ROOT=…`, `GODOT=…` |
 | `shell/local.d/*.sh` | anything machine- or project-specific; every file is sourced |
 | `shell/local_{aliases,functions,changes}.sh` | shared by Bash and Zsh |
 | `{bash,zsh}/local_{aliases,functions,changes}.{bash,zsh}` | per shell |
@@ -86,6 +86,8 @@ Both shells use vi line editing (`bindkey -v` / `set -o vi`): you start in inser
 | `lg` | lazygit |
 | `gag pattern` | `ag` (the silver searcher) run from the repository root |
 | `path_prepend dir` / `path_append dir` / `path_remove dir` | edit `$PATH` without duplicates |
+| `zbench [N]` / `zbench -p` | Zsh startup time (mean of N runs) / zprof breakdown |
+| `compreset` | rebuild the cached Zsh completion dump (after adding completions) |
 
 Keys in the Zsh prompt:
 
@@ -97,7 +99,9 @@ Keys in the Zsh prompt:
 | `Tab` | fzf-tab completion menu; `cd` previews the directory, `<` and `>` switch completion groups |
 | `→` | accept the grey zsh-autosuggestion (from history, then completion) |
 
-Also loaded: direnv (a `.envrc` in a directory is loaded when you cd into it; run `direnv allow` once per file) and conda.
+Also loaded: direnv (a `.envrc` in a directory is loaded when you cd into it; run `direnv allow` once per file) and conda (its hook runs on the first `conda …`, so it costs nothing at startup).
+
+History: commands are written as they run; duplicates of the previous line and lines starting with a space are not saved (use that for commands containing secrets).
 
 ### AI (aichat)
 
@@ -119,6 +123,10 @@ Also loaded: direnv (a `.envrc` in a directory is loaded when you cd into it; ru
 | `cmake-link` | symlink `compile_commands.json` to the project root (for clangd) |
 | `cmake-fresh` | clean, configure, build, link |
 | `cmake-watch` | rebuild on every C/C++ file change (needs watchexec) |
+
+### Git
+
+Defaults worth knowing: histogram diffs with moved lines coloured, `zdiff3` conflict markers, rerere (a resolved conflict is resolved again automatically), `rebase` with autoSquash/autoStash/updateRefs, `fetch` prunes, branches sorted by last commit. Needs git ≥ 2.38.
 
 ### Git aliases (`git <alias>`)
 
@@ -294,7 +302,30 @@ REPLs for balance sims (iron.nvim; Python uses IPython, Julia `--project=@.`, R)
 | `<leader>sb` / `<leader>sn` | send cell / send cell and jump to the next |
 | `<leader>s<space>` / `<leader>sx` | interrupt / clear |
 
+### C++ (`DOTFILES_CPP=1`; also on with `DOTFILES_GAMEDEV=1`)
+
+No engine assumptions; the project is the git root (`cpp_src`, `cdsrc`). The environment defaults to Ninja, `compile_commands.json`, ccache and parallel builds, and enables core dumps.
+
+| Command | What it does |
+| --- | --- |
+| `cmb [preset\|Debug\|Release]` | configure and build; uses `CMakePresets.json` if present, otherwise `build[-type]/` and links `compile_commands.json` to the root |
+| `cmpresets` | list the project's configure presets |
+| `cmt [-R regex]` | ctest in `build/`, output on failure |
+| `cmasan` / `cmtsan` | ASan + UBSan build in `build-asan/` / TSan build in `build-tsan/`, then run their tests |
+| `cmprofile` | RelWithDebInfo with frame pointers in `build-profile/` |
+| `cmwatch` | rebuild and test on every C++/CMake change |
+| `cxdet [-n N] cmd [args]` | run N times (default 2) and compare stdout byte for byte; print per-tick state hashes from a lockstep sim to check determinism |
+| `cxperf bin [args]` / `cxheap bin [args]` | CPU profile with perf, opens hotspot (`CXPERF_DWARF=1` without frame pointers) / heap profile with heaptrack |
+| `perfstat bin [args]` | hardware counters over 5 runs |
+| `perf-allow` | allow perf for your user until reboot |
+| `cxcores [exe]` / `cxcore [exe\|pid]` / `cxcorebt` | list core dumps / open the newest in gdb / print its full backtrace |
+| `netem wifi\|dsl\|mobile\|bad` | add latency, jitter, loss and a rate limit to loopback (round trip ≈ 2× the delay) |
+| `netem set 40 8 1 10mbit` / `netem off` / `netem status` | custom delay ms, jitter ms, loss %, rate / remove / show |
+| `cxsession [name] [run cmd]` | tmux session: Neovim, build watcher, a pane running `run cmd` |
+
 ### Game dev (`DOTFILES_GAMEDEV=1`)
+
+Godot on top of the C++ helpers above.
 
 The commands find the Godot project themselves (the nearest `project.godot`, or the shallowest one under the git root) and use `$GODOT` (default `godot`).
 
@@ -310,19 +341,7 @@ Run and test:
 | `gdverbose` | run with `--verbose --debug` |
 | `gdtest [args]` / `gdwatch` | GUT or gdUnit4 tests headless / rerun them on every `.gd` change |
 | `gdmulti N [args]` | N tiled instances for multiplayer; each gets `-- --instance=i`, logs in `/tmp/gd-instance-i.log`, `C-c` stops all |
-| `netem wifi\|dsl\|mobile\|bad` | add latency, jitter, loss and a rate limit to loopback (round trip ≈ 2× the delay) |
-| `netem set 40 8 1 10mbit` / `netem off` / `netem status` | custom delay ms, jitter ms, loss %, rate / remove / show |
 | `gdsession [name]` | tmux session: Neovim, build watcher, editor log |
-
-C++ (GDExtension and sim core). The environment defaults to Ninja, `compile_commands.json`, ccache and parallel builds:
-
-| Command | What it does |
-| --- | --- |
-| `cmb [preset\|Debug\|Release]` | configure and build; uses `CMakePresets.json` if present, otherwise `build[-type]/` and links `compile_commands.json` to the root |
-| `cmt [-R regex]` | ctest in `build/`, output on failure |
-| `cmasan` | ASan + UBSan build in `build-asan/` and run its tests |
-| `cmprofile` | RelWithDebInfo with frame pointers in `build-profile/` |
-| `cmwatch` | rebuild and test on every C++/CMake change |
 
 Debugging, profiling and crashes:
 
@@ -334,8 +353,6 @@ Debugging, profiling and crashes:
 | `gdlogs [-f]` | Godot's own `user://logs/godot.log` for the project (`-f` follows) |
 | `gdperf [args]` | CPU profile with perf (DWARF call graphs), opens hotspot |
 | `gdheap [args]` | heap profile with heaptrack |
-| `perfstat bin [args]` | hardware counters over 5 runs |
-| `perf-allow` | allow perf for your user until reboot |
 
 Balance sims:
 

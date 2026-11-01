@@ -56,7 +56,8 @@
 	tar = ! "tar() { git archive --format tar --prefix=\"${PWD##*/}/\" HEAD -o ${1}; }; tar"
 	targz = ! "targz() { git archive --format tar.gz --prefix=\"${PWD##*/}/\" HEAD -o ${1}; }; targz"
 	zip = ! "zip() { git archive --format zip --prefix=\"${PWD##*/}/\" HEAD -o ${1}; }; zip"
-	fmp = !git fetch origin && git merge origin/master --no-edit && git push
+	# merge the remote default branch (origin/HEAD; fix with `git remote set-head origin -a`)
+	fmp = !git fetch origin && git merge origin/HEAD --no-edit && git push
 
 [init]
 	defaultBranch = master
@@ -67,7 +68,9 @@
 [diff]
 	mnemonicPrefix = true
 	wordRegex = "[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+"
-	compactionHeuristic = true
+	algorithm = histogram
+	colorMoved = zebra
+	colorMovedWS = allow-indentation-change
 
 [color]
 	ui = auto
@@ -87,13 +90,41 @@
 
 [merge]
 	defaultToUpstream = true
-	tool = vimdiff
+	tool = nvimdiff
+	conflictStyle = zdiff3
 
 [pull]
 	ff = only
 
 [mergetool]
 	keepBackup = false
+
+[rerere]
+	enabled = true
+	autoUpdate = true
+
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
+
+[fetch]
+	prune = true
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = version:refname
+
+[column]
+	ui = auto
+
+[commit]
+	verbose = true
+
+[help]
+	autocorrect = prompt
 
 [push]
 	default = upstream

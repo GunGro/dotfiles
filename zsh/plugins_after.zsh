@@ -1,24 +1,7 @@
 # External plugins initialized after compinit.
 
-# dircolors
-if command -v dircolors >/dev/null 2>&1 && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
-    eval "$(dircolors "$HOME/.config/shell/plugins/dircolors-solarized/dircolors.256dark")"
-fi
-
-# zoxide
-if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-fi
-
-# fzf keybindings (Ctrl+T: fuzzy file insert, Alt+C: fuzzy cd)
-if [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
-    source /usr/share/doc/fzf/examples/key-bindings.zsh
-fi
-
-# direnv
-if command -v direnv >/dev/null 2>&1; then
-    eval "$(direnv hook zsh)"
-fi
+# dircolors, zoxide, fzf, direnv, atuin (before the widget-wrapping plugins)
+source "$HOME/.config/shell/plugins_common.sh"
 
 # fzf-tab
 zstyle ':completion:*:descriptions' format '[%d]'
@@ -46,7 +29,7 @@ fi
 # Keep your highlighting styles
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
-if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
+if (( ${+ZSH_HIGHLIGHT_STYLES} )) && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
     ZSH_HIGHLIGHT_STYLES[default]=none
     ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=160
     ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=037,bold

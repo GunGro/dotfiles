@@ -4,3 +4,9 @@
 	name = Your Name
 	# Tip: your GitHub noreply address keeps your mail out of public history.
 	email = you@example.com
+
+# Persistent credentials instead of the 1 h in-memory cache from git/gitconfig.
+# GitHub via the gh CLI (`gh auth login` once):
+# [credential "https://github.com"]
+# 	helper =
+# 	helper = !gh auth git-credential

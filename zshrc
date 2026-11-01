@@ -1,3 +1,6 @@
+# Profile startup with `zbench -p` (see zsh/settings.zsh)
+[[ -n $ZDOT_PROF ]] && zmodload zsh/zprof
+
 # Machine-local switches (DOTFILES_GAMEDEV, DOTFILES_PERSONAL, ...), read first
 if [ -f "$HOME/.config/shell/local_env.sh" ]; then
     source "$HOME/.config/shell/local_env.sh"
@@ -9,9 +12,17 @@ source "$HOME/.config/zsh/plugins_before.zsh"
 # Settings
 source "$HOME/.config/zsh/settings.zsh"
 
-# Shared aliases/functions
-source "$HOME/.config/shell/aliases.sh"
+# Shared functions (path_prepend etc.)
 source "$HOME/.config/shell/functions.sh"
+
+# User-local tools go on PATH before anything probes with `command -v`
+# (eza/btop aliases, zoxide, direnv, atuin), so a fresh login shell sees them.
+path_prepend "$HOME/.cargo/bin"
+path_prepend "$HOME/.atuin/bin"
+path_prepend "$HOME/.local/bin"
+
+# Shared aliases
+source "$HOME/.config/shell/aliases.sh"
 
 # Local aliases
 if [ -f "$HOME/.config/shell/local_aliases.sh" ]; then
@@ -44,11 +55,6 @@ source "$HOME/.config/zsh/prompt.zsh"
 # External plugins initialized after compinit
 source "$HOME/.config/zsh/plugins_after.zsh"
 
-# atuin (loaded after fzf so its Ctrl+R binding takes precedence)
-if command -v atuin >/dev/null 2>&1; then
-    eval "$(atuin init zsh)"
-fi
-
 # Local changes
 if [ -f "$HOME/.config/shell/local_changes.sh" ]; then
     source "$HOME/.config/shell/local_changes.sh"
@@ -58,10 +64,4 @@ if [ -f "$HOME/.config/zsh/local_changes.zsh" ]; then
     source "$HOME/.config/zsh/local_changes.zsh"
 fi
 
-# User-local tools
-path_prepend "$HOME/.cargo/bin"
-path_prepend "$HOME/.local/bin"
-
-if [ -f "$HOME/.atuin/bin/env" ]; then
-    . "$HOME/.atuin/bin/env"
-fi
+[[ -n $ZDOT_PROF ]] && zprof

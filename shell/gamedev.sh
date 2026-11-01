@@ -1,27 +1,13 @@
-#! /bin/env bash
+# shellcheck shell=bash
+# Sourced by bashrc and zshrc (not executed), so no shebang.
 # Game dev helpers: Godot 4 + GDScript + C++ GDExtension (CMake/godot-cpp).
-# Sourced from aliases.sh; works in bash and zsh.
+# Sourced from aliases.sh after shell/cpp.sh, which provides the engine-neutral
+# parts (CMake env, cm* builds, perfstat/cmprofile, netem, core dumps).
 
 # ─── Environment ─────────────────────────────────────────────────────────────
 
 # Godot binary (override in local_changes.* if it lives elsewhere).
 export GODOT="${GODOT:-godot}"
-
-# CMake defaults picked up from the environment (CMake >= 3.17 / 3.24).
-export CMAKE_GENERATOR="${CMAKE_GENERATOR:-Ninja}"
-export CMAKE_EXPORT_COMPILE_COMMANDS="${CMAKE_EXPORT_COMPILE_COMMANDS:-ON}"
-export CMAKE_COLOR_DIAGNOSTICS="${CMAKE_COLOR_DIAGNOSTICS:-ON}"
-if command -v ccache >/dev/null 2>&1; then
-    export CMAKE_C_COMPILER_LAUNCHER="${CMAKE_C_COMPILER_LAUNCHER:-ccache}"
-    export CMAKE_CXX_COMPILER_LAUNCHER="${CMAKE_CXX_COMPILER_LAUNCHER:-ccache}"
-fi
-export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:-$(nproc 2>/dev/null || echo 4)}"
-export CTEST_OUTPUT_ON_FAILURE=1
-export CTEST_PARALLEL_LEVEL="${CTEST_PARALLEL_LEVEL:-$CMAKE_BUILD_PARALLEL_LEVEL}"
-
-# Readable ASan/UBSan reports by default.
-export ASAN_OPTIONS="${ASAN_OPTIONS:-detect_leaks=1:abort_on_error=1:strict_string_checks=1}"
-export UBSAN_OPTIONS="${UBSAN_OPTIONS:-print_stacktrace=1:halt_on_error=1}"
 
 # ─── Project discovery ───────────────────────────────────────────────────────
 
@@ -42,10 +28,8 @@ gd_root() {
     dirname "$p"
 }
 
-# Print the CMake source dir (git root by default).
-gd_src() {
-    git rev-parse --show-toplevel 2>/dev/null || echo "$PWD"
-}
+# CMake source dir; kept as a name for older muscle memory (see cpp_src).
+gd_src() { cpp_src; }
 
 alias cdgd='cd "$(gd_root)"'
 
@@ -117,46 +101,7 @@ gdlldb() { lldb -- "$GODOT" --path "$(gd_root)" "$@"; }
 # Run until crash, print all backtraces, exit. Good for CI-ish repro.
 gdbt() { gdb -q -batch -ex run -ex 'thread apply all bt' --args "$GODOT" --path "$(gd_root)" "$@"; }
 
-# ─── CMake (GDExtension / sim core) ──────────────────────────────────────────
-
-# Configure + build + link compile_commands.json. Uses CMakePresets.json if present.
-# Usage: cmb [preset|build-type]   (default: debug / Debug)
-cmb() {
-    local src
-    src="$(gd_src)"
-    if [ -f "$src/CMakePresets.json" ]; then
-        local p="${1:-debug}"
-        (cd "$src" && cmake --preset "$p" && cmake --build --preset "$p") || return 1
-    else
-        local t="${1:-Debug}"
-        local b="$src/build"
-        [ "$t" = "Debug" ] || b="$src/build-$(echo "$t" | tr '[:upper:]' '[:lower:]')"
-        cmake -S "$src" -B "$b" -DCMAKE_BUILD_TYPE="$t" && cmake --build "$b" || return 1
-        ln -sf "$b/compile_commands.json" "$src/compile_commands.json"
-    fi
-}
-
-# ctest in the default build dir. Usage: cmt [-R regex] ...
-cmt() { ctest --test-dir "$(gd_src)/build" "$@"; }
-
-# ASan+UBSan build in build-asan (for the standalone sim-core test binaries).
-cmasan() {
-    local src
-    src="$(gd_src)"
-    cmake -S "$src" -B "$src/build-asan" -DCMAKE_BUILD_TYPE=Debug \
-        -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
-        -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
-        -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
-        -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined" \
-        "$@" && cmake --build "$src/build-asan" && ctest --test-dir "$src/build-asan"
-}
-
-# Rebuild + run tests on every C++/CMake change; GDScript changes rerun gdtest.
-cmwatch() {
-    command -v watchexec >/dev/null 2>&1 || { echo "cmwatch: watchexec missing" >&2; return 1; }
-    watchexec -w "$(gd_src)" -e cpp,hpp,h,cc,inl,cmake,txt -i 'build*/**' -i '**/godot-cpp/**' \
-        -- "cmake --build '$(gd_src)/build' && ctest --test-dir '$(gd_src)/build'"
-}
+# Rerun GDScript tests on every .gd change (cmwatch covers C++).
 gdwatch() {
     command -v watchexec >/dev/null 2>&1 || { echo "gdwatch: watchexec missing" >&2; return 1; }
     watchexec -w "$(gd_root)" -e gd -i '.godot/**' -- "$SHELL" -ic "gdtest $*"
@@ -182,10 +127,7 @@ gdsession() {
     tmux attach -t "$name"
 }
 
-# ─── Profiling ───────────────────────────────────────────────────────────────
-
-# Temporarily allow unprivileged perf + kernel symbols (reset on reboot).
-perf-allow() { sudo sysctl -w kernel.perf_event_paranoid=1 kernel.kptr_restrict=0; }
+# ─── Profiling (Godot host process; cxperf/cxheap for any binary) ───────────
 
 # CPU profile of the game (or editor with -e). DWARF unwinding works on
 # Godot's release binary, which has no frame pointers. Opens hotspot after.
@@ -205,65 +147,6 @@ gdperf() {
 gdheap() {
     command -v heaptrack >/dev/null 2>&1 || { echo "gdheap: heaptrack missing" >&2; return 1; }
     heaptrack -o /tmp/gdheap "$GODOT" --path "$(gd_root)" "$@"
-}
-
-# Hardware counters for a sim-core benchmark binary, 5 runs with variance.
-# Usage: perfstat build-profile/bench_sim [args]
-perfstat() {
-    perf stat -r "${PERFSTAT_RUNS:-5}" \
-        -e task-clock,cycles,instructions,branch-misses,cache-references,cache-misses,L1-dcache-load-misses \
-        -- "$@"
-}
-
-# RelWithDebInfo + frame pointers in build-profile: cheap, accurate call
-# graphs for the extension and sim core (perf record -g, no DWARF needed).
-cmprofile() {
-    local src
-    src="$(gd_src)"
-    cmake -S "$src" -B "$src/build-profile" -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DCMAKE_C_FLAGS="-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer" \
-        -DCMAKE_CXX_FLAGS="-fno-omit-frame-pointer -mno-omit-leaf-frame-pointer" \
-        "$@" && cmake --build "$src/build-profile"
-}
-
-# ─── Network conditions (for gdmulti / local client+server) ─────────────────
-
-# Shape loopback traffic with tc netem. Applies to *every* packet on the
-# interface in each direction, so on lo the RTT is ~2x the delay.
-# Usage: netem lan|wifi|dsl|mobile|bad      presets (one-way delay)
-#        netem set DELAY_MS [JITTER_MS] [LOSS_%] [RATE]   e.g. netem set 40 8 1 10mbit
-#        netem off | netem status
-# Env: NETEM_DEV (default lo)
-netem() {
-    local dev="${NETEM_DEV:-lo}" d j l r
-    case "${1:-status}" in
-        lan) d=1 j=0 l=0 ;;
-        wifi) d=10 j=5 l=0.5 ;;
-        dsl) d=25 j=4 l=0.2 ;;
-        mobile) d=50 j=20 l=1 r=5mbit ;;
-        bad) d=120 j=40 l=4 r=1mbit ;;
-        set) d="${2:?delay ms}" j="${3:-0}" l="${4:-0}" r="${5:-}" ;;
-        off)
-            sudo tc qdisc del dev "$dev" root 2>/dev/null
-            echo "netem: off on $dev"
-            return 0
-            ;;
-        status)
-            tc qdisc show dev "$dev"
-            return 0
-            ;;
-        *)
-            echo "usage: netem lan|wifi|dsl|mobile|bad|set D [J] [L] [RATE]|off|status" >&2
-            return 1
-            ;;
-    esac
-    # Build args positionally (no word splitting, so it behaves the same in zsh).
-    set -- delay "${d}ms"
-    [ "$j" != 0 ] && set -- "$@" "${j}ms" distribution normal
-    set -- "$@" loss "${l}%"
-    [ -n "$r" ] && set -- "$@" rate "$r"
-    sudo tc qdisc replace dev "$dev" root netem "$@" &&
-        echo "netem: $dev delay ${d}ms±${j}ms loss ${l}%${r:+ rate $r} (RTT on lo ≈ 2×)"
 }
 
 # ─── Balance sims ────────────────────────────────────────────────────────────
@@ -295,10 +178,6 @@ alias jlt='julia --project=@. -e "using Pkg; Pkg.test()"'
 alias Rq='R --no-save --quiet'
 
 # ─── Crash triage ────────────────────────────────────────────────────────────
-
-# Allow core dumps for processes started from this shell (systemd-coredump
-# stores them; it honours the crashing process's RLIMIT_CORE).
-ulimit -c unlimited 2>/dev/null || true
 
 _gd_exe() { readlink -f "$(command -v "$GODOT")"; }
 

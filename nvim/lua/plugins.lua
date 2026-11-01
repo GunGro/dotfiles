@@ -1,4 +1,24 @@
 return {
+	-- <C-hjkl> across nvim splits and tmux panes. The tmux half is the
+	-- christoomey/vim-tmux-navigator TPM plugin in tmux.conf; without this
+	-- side, <C-hjkl> inside nvim never reached a neighbouring tmux pane.
+	{
+		"christoomey/vim-tmux-navigator",
+		cmd = {
+			"TmuxNavigateLeft",
+			"TmuxNavigateDown",
+			"TmuxNavigateUp",
+			"TmuxNavigateRight",
+			"TmuxNavigatePrevious",
+		},
+		keys = {
+			{ "<C-h>", "<cmd>TmuxNavigateLeft<cr>", desc = "Window/pane left" },
+			{ "<C-j>", "<cmd>TmuxNavigateDown<cr>", desc = "Window/pane down" },
+			{ "<C-k>", "<cmd>TmuxNavigateUp<cr>", desc = "Window/pane up" },
+			{ "<C-l>", "<cmd>TmuxNavigateRight<cr>", desc = "Window/pane right" },
+		},
+	},
+
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
@@ -187,7 +207,7 @@ return {
 	-- ─── C++ / LSP (native vim.lsp API, Neovim >= 0.11) ────────────────────────
 
 	{
-		"williamboman/mason.nvim",
+		"mason-org/mason.nvim", -- moved from williamboman/mason.nvim (v2)
 		dependencies = {
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 		},
@@ -225,17 +245,11 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			"williamboman/mason.nvim",
+			"mason-org/mason.nvim",
 		},
 		config = function()
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			if pcall(require, "cmp_nvim_lsp") then
-				capabilities =
-					vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-			end
-			--setup vtsls language server
+			-- capabilities come from vim.lsp.config("*") in init.lua
 			vim.lsp.config("vtsls", {
-				capabilities = capabilities,
 				cmd = { "vtsls", "--stdio" },
 				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 				settings = {

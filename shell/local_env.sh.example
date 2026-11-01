@@ -1,12 +1,20 @@
 # Machine-local switches. Copied to shell/local_env.sh by setup.bash (not tracked).
 # Sourced first by bashrc/zshrc, so values here decide what the rest loads.
 
-# Godot / GDExtension helpers (shell/gamedev.sh). Also exports CMake defaults
-# (Ninja, compile_commands, ccache), ASan/UBSan options and runs `ulimit -c unlimited`.
+# C/C++ helpers (shell/cpp.sh): CMake defaults (Ninja, compile_commands, ccache),
+# cmb/cmt/cmasan/cmtsan/cmprofile/cmwatch, cxperf/cxheap/cxdet/cxsession,
+# core dumps (`ulimit -c unlimited`, cxcore*), netem.
+# export DOTFILES_CPP=1
+
+# Godot / GDExtension helpers (shell/gamedev.sh). Implies DOTFILES_CPP.
 # export DOTFILES_GAMEDEV=1
 
 # One-letter shortcuts from shell/personal.sh (s = shutdown -h, e = exit).
 # export DOTFILES_PERSONAL=1
+
+# conda install to use, if not ~/miniforge3, ~/miniconda3 or ~/anaconda3.
+# Delete any `conda init` block from local_changes.*: shell/conda.sh replaces it.
+# export CONDA_ROOT="$HOME/anaconda3"
 
 # Godot binary, if it is not `godot` on PATH.
 # export GODOT="$HOME/.local/bin/godot"

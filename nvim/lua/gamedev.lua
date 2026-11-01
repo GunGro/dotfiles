@@ -67,13 +67,8 @@ vim.api.nvim_create_autocmd("FileType", {
 -- ─── GDScript LSP (served by the running Godot editor over TCP) ─────────────
 -- Editor Settings → Network → Language Server (default port 6005).
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-if pcall(require, "cmp_nvim_lsp") then
-	capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-end
-
+-- capabilities come from vim.lsp.config("*") in init.lua
 vim.lsp.config("gdscript", {
-	capabilities = capabilities,
 	cmd = vim.lsp.rpc.connect("127.0.0.1", tonumber(os.getenv("GDScript_Port") or "6005")),
 	filetypes = { "gdscript" },
 	root_markers = { "project.godot" },

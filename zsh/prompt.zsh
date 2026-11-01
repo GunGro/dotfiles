@@ -46,19 +46,20 @@ function PR_DIR() {
     if [[ "${sub}" == "" ]]; then
         sub=3
     fi
-    local len="$(expr ${sub} + 1)"
-    local full="$(print -P "%d")"
-    local relfull="$(print -P "%~")"
-    local shorter="$(print -P "%${len}~")"
-    local current="$(print -P "%${len}(~:.../:)%${sub}~")"
-    local last="$(print -P "%1~")"
+    local len=$(( sub + 1 ))
+    # ${(%):-...} prompt-expands in-process (print -P in $(...) forked 5x)
+    local full=${(%):-%d}
+    local relfull=${(%):-%~}
+    local shorter=${(%):-%${len}~}
+    local current=${(%):-%${len}(~:.../:)%${sub}~}
+    local last=${(%):-%1~}
 
     # Longer path for '~/...'
     if [[ "${shorter}" == \~/* ]]; then
         current=${shorter}
     fi
 
-    local truncated="$(echo "${current%/*}/")"
+    local truncated="${current%/*}/"
 
     # Handle special case of directory '/' or '~something'
     if [[ "${truncated}" == "/" || "${relfull[1,-2]}" != */* ]]; then
@@ -98,31 +99,28 @@ function RPR_USER() {
 
 function machine_name() {
     if [[ -f $HOME/.name ]]; then
-        cat $HOME/.name
+        print -r -- "$(<$HOME/.name)"
     else
-        hostname
+        print -r -- "${HOST:-$(hostname)}"
     fi
 }
 
-PROMPT_PYTHON="$(command -v python || command -v python3 || command -v python2)"
+# Host in a deterministically chosen color, computed once per shell.
+# Same colour as the old per-prompt python: int(sha1, 16) % 5, and since
+# 16 = 1 (mod 5) that equals the sum of the hex digits mod 5.
+_pr_host_colors=(cyan green yellow red pink)
+_pr_machine="$(machine_name)"
+() {
+    local hex d sum=0
+    hex=${${"$(print -rn -- "$_pr_machine" | sha1sum)"}[1,40]}
+    for d in ${(s::)hex}; do (( sum += 16#$d )); done
+    _pr_host_color=$_pr_host_colors[$(( sum % ${#_pr_host_colors} + 1 ))]
+}
 
-# Host in a deterministically chosen color
 RPR_SHOW_HOST=true # Set to false to disable host in rhs prompt
 function RPR_HOST() {
-    local colors
-    colors=(cyan green yellow red pink)
-    local index=$("$PROMPT_PYTHON" <<EOF
-import hashlib
-
-hash = int(hashlib.sha1('$(machine_name)'.encode('utf8')).hexdigest(), 16)
-index = hash % ${#colors} + 1
-
-print(index)
-EOF
-    )
-    local color=$colors[index]
     if [[ "${RPR_SHOW_HOST}" == "true" ]]; then
-        echo "%{$fg[$color]%}$(machine_name)%{$reset_color%}"
+        echo "%{$fg[$_pr_host_color]%}${_pr_machine}%{$reset_color%}"
     fi
 }
 
@@ -151,74 +149,55 @@ GIT_PROMPT_MODIFIED="%{$fg[yellow]%}%B$DIFF_SYMBOL%b%{$reset_color%}"
 GIT_PROMPT_STAGED="%{$fg[green]%}%B$DIFF_SYMBOL%b%{$reset_color%}"
 GIT_PROMPT_DETACHED="%{$fg[neon]%}%B!%b%{$reset_color%}"
 
-# Show Git branch/tag, or name-rev if on detached head
-function parse_git_branch() {
-    (git symbolic-ref -q HEAD || git name-rev --name-only --no-undefined --always HEAD) 2> /dev/null
-}
-
-function parse_git_detached() {
-    if ! git symbolic-ref HEAD >/dev/null 2>&1; then
-        echo "${GIT_PROMPT_DETACHED}"
-    fi
-}
-
-# Show different symbols as appropriate for various Git repository states
-function parse_git_state() {
-    # Compose this value via multiple conditional appends.
-    local GIT_STATE="" GIT_DIFF=""
-
-    local NUM_AHEAD="$(git log --oneline @{u}.. 2> /dev/null | wc -l | tr -d ' ')"
-    if [ "$NUM_AHEAD" -gt 0 ]; then
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_AHEAD//NUM/$NUM_AHEAD}
-    fi
-
-    local NUM_BEHIND="$(git log --oneline ..@{u} 2> /dev/null | wc -l | tr -d ' ')"
-    if [ "$NUM_BEHIND" -gt 0 ]; then
-        if [[ -n $GIT_STATE ]]; then
-            GIT_STATE="$GIT_STATE "
-        fi
-    GIT_STATE=$GIT_STATE${GIT_PROMPT_BEHIND//NUM/$NUM_BEHIND}
-    fi
-
-    local GIT_DIR="$(git rev-parse --git-dir 2> /dev/null)"
-    if [ -n "$GIT_DIR" ] && test -r "$GIT_DIR/MERGE_HEAD"; then
-        if [[ -n $GIT_STATE ]]; then
-            GIT_STATE="$GIT_STATE "
-        fi
-    GIT_STATE=$GIT_STATE$GIT_PROMPT_MERGING
-    fi
-
-    if [[ -n $(git ls-files --other --exclude-standard :/ 2> /dev/null) ]]; then
-    GIT_DIFF=$GIT_PROMPT_UNTRACKED
-    fi
-
-    if ! git diff --quiet 2> /dev/null; then
-    GIT_DIFF=$GIT_DIFF$GIT_PROMPT_MODIFIED
-    fi
-
-    if ! git diff --cached --quiet 2> /dev/null; then
-    GIT_DIFF=$GIT_DIFF$GIT_PROMPT_STAGED
-    fi
-
-    if [[ -n $GIT_STATE && -n $GIT_DIFF ]]; then
-        GIT_STATE="$GIT_STATE "
-    fi
-    GIT_STATE="$GIT_STATE$GIT_DIFF"
-
-    if [[ -n $GIT_STATE ]]; then
-    echo "$GIT_PROMPT_PREFIX$GIT_STATE$GIT_PROMPT_SUFFIX"
-    fi
-}
-
-# If inside a Git repository, print its branch and state
-RPR_SHOW_GIT=true # Set to false to disable git status in rhs prompt
+# Branch, ahead/behind, staged/modified/untracked from ONE `git status
+# --porcelain=v2 --branch` (was ~7 git processes per prompt). Plus one
+# rev-parse for the merge marker and name-rev only on a detached HEAD.
 function git_prompt_string() {
-    if [[ "${RPR_SHOW_GIT}" == "true" ]]; then
-        local git_where="$(parse_git_branch)"
-        local git_detached="$(parse_git_detached)"
-        [ -n "$git_where" ] && echo " $GIT_PROMPT_SYMBOL$(parse_git_state)$GIT_PROMPT_PREFIX%{$fg[magenta]%}%B${git_where#(refs/heads/|tags/)}%b$git_detached$GIT_PROMPT_SUFFIX"
+    [[ "${RPR_SHOW_GIT}" == "true" ]] || return
+    local gitdir
+    gitdir="$(git rev-parse --git-dir 2>/dev/null)" || return
+
+    local line head="" ahead=0 behind=0 staged=0 modified=0 untracked=0
+    while IFS= read -r line; do
+        case $line in
+            '# branch.head '*) head=${line#\# branch.head } ;;
+            '# branch.ab '*)
+                local ab=(${=${line#\# branch.ab }})
+                ahead=${ab[1]#+}; behind=${ab[2]#-} ;;
+            '#'*) ;;
+            '? '*) untracked=1 ;;
+            'u '*) modified=1 ;;
+            [12]' '*)
+                [[ ${line[3]} != . ]] && staged=1
+                [[ ${line[4]} != . ]] && modified=1 ;;
+        esac
+    done < <(git status --porcelain=v2 --branch 2>/dev/null)
+
+    local where detached=""
+    if [[ $head == '(detached)' ]]; then
+        where="$(git name-rev --name-only --no-undefined --always HEAD 2>/dev/null)"
+        where=${where#tags/}
+        detached=$GIT_PROMPT_DETACHED
+    else
+        where=$head
     fi
+    [[ -n $where ]] || return
+
+    local state="" diff=""
+    (( ahead > 0 )) && state=${GIT_PROMPT_AHEAD//NUM/$ahead}
+    (( behind > 0 )) && state="${state:+$state }${GIT_PROMPT_BEHIND//NUM/$behind}"
+    [[ -r "$gitdir/MERGE_HEAD" ]] && state="${state:+$state }$GIT_PROMPT_MERGING"
+    (( untracked )) && diff=$GIT_PROMPT_UNTRACKED
+    (( modified )) && diff=$diff$GIT_PROMPT_MODIFIED
+    (( staged )) && diff=$diff$GIT_PROMPT_STAGED
+    [[ -n $state && -n $diff ]] && state="$state "
+    state="$state$diff"
+
+    local st=""
+    [[ -n $state ]] && st="$GIT_PROMPT_PREFIX$state$GIT_PROMPT_SUFFIX"
+    echo " $GIT_PROMPT_SYMBOL$st$GIT_PROMPT_PREFIX%{$fg[magenta]%}%B${where}%b$detached$GIT_PROMPT_SUFFIX"
 }
+RPR_SHOW_GIT=true # Set to false to disable git status in rhs prompt
 
 PROMPT_MODE=0
 PROMPT_MODES=4
@@ -276,7 +255,7 @@ function PR_VARS() {
         local v=${_pr_var_list[i]}
         if [[ -v "${v}" ]]; then
             # if variable is set
-            if export | grep -Eq "^${v}="; then
+            if [[ ${(Pt)v} == *export* ]]; then
                 # if exported, show regularly
                 printf '%s' "$spc%{$fg[cyan]%}${v}=${(P)${v}}%{$reset_color%}$nl"
             else
@@ -291,14 +270,20 @@ function PR_VARS() {
             # valid environment variable
             if [[ ${_pr_var_list[(i)${v}]} -gt ${#_pr_var_list} ]]; then
                 # not shown yet
-                if export | grep -Eq "^${v}="; then
+                if [[ ${(Pt)v} == *export* ]]; then
                     # exported
                     printf '%s' "$spc%{$fg[cyan]%}${v}=${(P)${v}}%{$reset_color%}$nl"
                 fi
             fi
         fi
-    done < <(git exec cat .showvars 2>/dev/null)
+    done < <([[ -n $_pr_gitroot && -r $_pr_gitroot/.showvars ]] && print -r -- "$(<$_pr_gitroot/.showvars)")
 }
+
+# Git root for .showvars, refreshed on cd instead of a git call per prompt.
+autoload -Uz add-zsh-hook
+function _pr_update_gitroot() { _pr_gitroot="$(git rev-parse --show-toplevel 2>/dev/null)"; }
+add-zsh-hook chpwd _pr_update_gitroot
+_pr_update_gitroot
 
 # Prompt
 function PCMD() {
@@ -333,37 +318,31 @@ function RCMD() {
     fi
 }
 
-ASYNC_PROC=0
-function precmd() {
-    function async() {
-        # save to temp file
-        printf "%s" "$(RCMD)" > "/tmp/zsh_prompt_$$"
+# Async RPROMPT: compute RCMD in a process substitution and let zle read
+# the result when it is ready (zle -F). No temp file: the old
+# /tmp/zsh_prompt_$$ was predictable in a world-writable dir and never removed.
+typeset -gi _rpr_fd=-1
+function _rpr_done() {
+    local fd=$1 out
+    IFS= read -r -d '' -u $fd out
+    zle -F $fd
+    exec {fd}<&-
+    (( fd == _rpr_fd )) && _rpr_fd=-1
+    RPROMPT=${out%$'\n'} # RCMD echoes a newline; RPROMPT must be one line
+    zle reset-prompt
+}
+# A widget (zle -F -w), so it may call reset-prompt.
+zle -N _rpr_done
 
-        # signal parent
-        kill -s USR1 $$
-    }
-
-    # do not clear RPROMPT, let it persist
-
-    # kill child if necessary
-    if [[ "${ASYNC_PROC}" != 0 ]]; then
-        kill -s HUP $ASYNC_PROC >/dev/null 2>&1 || :
+function _rpr_start() {
+    # drop a still-running previous computation (it gets SIGPIPE on write)
+    if (( _rpr_fd >= 0 )); then
+        zle -F $_rpr_fd 2>/dev/null
+        exec {_rpr_fd}<&-
+        _rpr_fd=-1
     fi
-
-    # start background computation
-    async &!
-    ASYNC_PROC=$!
+    # do not clear RPROMPT, let it persist
+    exec {_rpr_fd}< <(RCMD)
+    zle -F -w $_rpr_fd _rpr_done
 }
-
-function TRAPUSR1() {
-    # read from temp file
-    RPROMPT="$(cat /tmp/zsh_prompt_$$)"
-
-    # reset proc number
-    ASYNC_PROC=0
-
-    # redisplay
-    zle && zle reset-prompt
-}
-
-
+add-zsh-hook precmd _rpr_start

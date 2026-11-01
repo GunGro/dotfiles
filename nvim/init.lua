@@ -16,10 +16,8 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- ─── Core settings (mirrors your vimrc) ───────────────────────────────────────
+-- ─── Core settings ─────────────────────────────────────────────────────────
 
-vim.opt.compatible = false
-vim.opt.encoding = "utf-8"
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline = true
@@ -67,11 +65,8 @@ local map = function(mode, lhs, rhs, opts)
 	vim.keymap.set(mode, lhs, rhs, opts)
 end
 
--- Window navigation
-map("n", "<C-h>", "<C-w>h")
-map("n", "<C-j>", "<C-w>j")
-map("n", "<C-k>", "<C-w>k")
-map("n", "<C-l>", "<C-w>l")
+-- Window navigation: <C-hjkl> come from vim-tmux-navigator (lua/plugins.lua),
+-- which moves across nvim splits and tmux panes alike.
 
 -- Clear search highlight
 map("n", "<Esc>", ":nohlsearch<CR>")
@@ -97,10 +92,9 @@ map("n", "<leader>fg", ":Telescope live_grep<CR>")
 map("n", "<leader>fb", ":Telescope buffers<CR>")
 map("n", "<leader>fs", ":Telescope lsp_document_symbols<CR>")
 
--- LSP (set in on_attach, but global fallbacks)
+-- Diagnostics. Neovim >= 0.11 already maps [d ]d (jump), K (hover) and
+-- grn/gra/grr/gri (rename/action/references/implementation).
 map("n", "<leader>e", vim.diagnostic.open_float)
-map("n", "[d", vim.diagnostic.goto_prev)
-map("n", "]d", vim.diagnostic.goto_next)
 
 -- ─── Load plugins ─────────────────────────────────────────────────────────────
 
@@ -118,8 +112,6 @@ local on_attach = function(_, bufnr)
 	vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 	vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
 	vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
-	vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-	vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 end
 
 vim.api.nvim_create_autocmd("LspAttach", {
@@ -129,16 +121,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 -- ─── Shared LSP capabilities (enables full nvim-cmp completion features) ────
+-- vim.lsp.config("*") is merged into every server (here, plugins.lua and
+-- gamedev.lua), so no per-server capabilities tables.
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 if pcall(require, "cmp_nvim_lsp") then
 	capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 end
+vim.lsp.config("*", { capabilities = capabilities })
 
 -- ─── clangd ─────────────────────────────────────────────────────────────────
 
 vim.lsp.config("clangd", {
-	capabilities = capabilities,
 	cmd = {
 		"clangd",
 		"--background-index",
@@ -158,7 +152,6 @@ vim.lsp.enable("clangd")
 -- ─── typos-lsp ──────────────────────────────────────────────────────────────
 
 vim.lsp.config("typos_lsp", {
-	capabilities = capabilities,
 	cmd = { "typos-lsp" },
 	filetypes = { "c", "cpp", "lua", "python", "sh", "markdown", "text" },
 	root_markers = { ".git" },

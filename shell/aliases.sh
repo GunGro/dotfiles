@@ -1,4 +1,5 @@
-#! /bin/env bash
+# shellcheck shell=bash
+# Sourced by bashrc and zshrc (not executed), so no shebang.
 # Editor
 
 alias vim='nvim'
@@ -77,7 +78,11 @@ aiexplain() {
 }
 
 # Optional parts, switched on in shell/local_env.sh (see local_env.sh.example).
-# Game dev (Godot / GDExtension) helpers; also sets CMake/ccache env and ulimit -c.
+# C/C++ helpers (CMake env, sanitizer builds, profiling, cores, netem, cxdet).
+if { [ "${DOTFILES_CPP:-0}" = 1 ] || [ "${DOTFILES_GAMEDEV:-0}" = 1 ]; } && [ -f "$HOME/.config/shell/cpp.sh" ]; then
+    . "$HOME/.config/shell/cpp.sh"
+fi
+# Godot / GDExtension helpers on top of cpp.sh.
 if [ "${DOTFILES_GAMEDEV:-0}" = 1 ] && [ -f "$HOME/.config/shell/gamedev.sh" ]; then
     . "$HOME/.config/shell/gamedev.sh"
 fi

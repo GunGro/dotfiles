@@ -13,9 +13,17 @@ fi
 # Settings
 source "$HOME/.config/bash/settings.bash"
 
-# Shared aliases/functions
-source "$HOME/.config/shell/aliases.sh"
+# Shared functions (path_prepend etc.)
 source "$HOME/.config/shell/functions.sh"
+
+# User-local tools go on PATH before anything probes with `command -v`
+# (eza/btop aliases, zoxide, direnv, atuin), so a fresh login shell sees them.
+path_prepend "$HOME/.cargo/bin"
+path_prepend "$HOME/.atuin/bin"
+path_prepend "$HOME/.local/bin"
+
+# Shared aliases
+source "$HOME/.config/shell/aliases.sh"
 
 # Local aliases
 if [ -f "$HOME/.config/shell/local_aliases.sh" ]; then
@@ -48,11 +56,6 @@ source "$HOME/.config/bash/prompt.bash"
 # External plugins
 source "$HOME/.config/bash/plugins.bash"
 
-# atuin (loaded after fzf so its Ctrl+R binding takes precedence)
-if command -v atuin >/dev/null 2>&1; then
-    eval "$(atuin init bash)"
-fi
-
 # Local changes
 if [ -f "$HOME/.config/shell/local_changes.sh" ]; then
     source "$HOME/.config/shell/local_changes.sh"
@@ -60,16 +63,4 @@ fi
 
 if [ -f "$HOME/.config/bash/local_changes.bash" ]; then
     source "$HOME/.config/bash/local_changes.bash"
-fi
-
-# User-local tools
-if [ -f "$HOME/.cargo/env" ]; then
-    . "$HOME/.cargo/env"
-fi
-
-path_prepend "$HOME/.cargo/bin"
-path_prepend "$HOME/.local/bin"
-
-if [ -f "$HOME/.atuin/bin/env" ]; then
-    . "$HOME/.atuin/bin/env"
 fi
