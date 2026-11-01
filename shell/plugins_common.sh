@@ -7,7 +7,7 @@ if [ -n "${ZSH_VERSION:-}" ]; then _dot_sh=zsh; else _dot_sh=bash; fi
 # dircolors (the solarized theme is a submodule; skip if it isn't checked out)
 _dot_dc="$HOME/.config/shell/plugins/dircolors-solarized/dircolors.256dark"
 if [ -f "$_dot_dc" ] && command -v dircolors >/dev/null 2>&1 && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
-    eval "$(dircolors "$_dot_dc")"
+    eval "$(dircolors -b "$_dot_dc")" # -b: SHELL may be unset (env -i, some systemd units)
 fi
 unset _dot_dc
 

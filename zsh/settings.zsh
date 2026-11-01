@@ -12,6 +12,11 @@ autoload -Uz compinit
     else
         compinit -C -d "$dump"
     fi
+    # Load the dump as bytecode: compinit -C on the plain file is ~15 ms of
+    # parsing, the .zwc loads in ~1 ms. Recompiled whenever the dump changes.
+    if [[ -s $dump && ( ! -s $dump.zwc || $dump -nt $dump.zwc ) ]]; then
+        zcompile "$dump" 2>/dev/null
+    fi
 }
 compreset() { rm -f "${ZDOTDIR:-$HOME}"/.zcompdump*(N) && exec zsh; }
 
@@ -40,10 +45,6 @@ setopt hist_verify         # !! / !$ expand into the buffer instead of running
 # Zsh uses hundredths of a second; 1 = 10 ms.
 KEYTIMEOUT=1
 
-# Editor
-export EDITOR=nvim
-export VISUAL=nvim
-
 # Vim-style line editing
 bindkey -v
 
@@ -52,6 +53,26 @@ bindkey -v
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey -M vicmd v edit-command-line
+
+# Insert mode deletes like bash's vi mode (readline): Backspace, ^W and ^U go
+# past the point where insert mode was entered. zsh's vi-* defaults stop there.
+bindkey -M viins '^?' backward-delete-char
+bindkey -M viins '^H' backward-delete-char
+bindkey -M viins '^W' backward-kill-word
+bindkey -M viins '^U' backward-kill-line
+
+# Mode as cursor shape, as in bash (inputrc): beam in insert, block in normal,
+# terminal default while a command runs. Hook widgets, so they compose with
+# zsh-autosuggestions / zsh-syntax-highlighting.
+autoload -Uz add-zle-hook-widget
+_dot_vi_cursor() {
+    if [[ $KEYMAP == vicmd ]]; then print -n '\e[2 q'; else print -n '\e[6 q'; fi
+}
+add-zle-hook-widget keymap-select _dot_vi_cursor
+add-zle-hook-widget line-init _dot_vi_cursor
+_dot_cursor_reset() { print -n '\e[0 q'; }
+autoload -Uz add-zsh-hook
+add-zsh-hook preexec _dot_cursor_reset
 
 disable r 2>/dev/null || true
 unsetopt BEEP

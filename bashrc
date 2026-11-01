@@ -1,4 +1,10 @@
-# ~/.bashrc: executed by bash(1) for non-login interactive shells.
+# ~/.bashrc: executed by bash(1) for non-login interactive shells, and by
+# sshd's bash for `ssh host cmd`.
+
+# PATH and EDITOR for every shell, so `ssh host cmd` finds ~/.local/bin tools.
+if [ -f "$HOME/.config/shell/env.sh" ]; then
+    source "$HOME/.config/shell/env.sh"
+fi
 
 case $- in
     *i*) ;;
@@ -13,14 +19,6 @@ fi
 # Settings
 source "$HOME/.config/bash/settings.bash"
 
-# Shared functions (path_prepend etc.)
-source "$HOME/.config/shell/functions.sh"
-
-# User-local tools go on PATH before anything probes with `command -v`
-# (eza/btop aliases, zoxide, direnv, atuin), so a fresh login shell sees them.
-path_prepend "$HOME/.cargo/bin"
-path_prepend "$HOME/.atuin/bin"
-path_prepend "$HOME/.local/bin"
 
 # Shared aliases
 source "$HOME/.config/shell/aliases.sh"

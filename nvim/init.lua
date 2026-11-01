@@ -58,6 +58,24 @@ vim.opt.showmode = false -- lualine handles this
 -- Clipboard
 vim.opt.clipboard = "unnamedplus"
 
+-- No X/Wayland display (ssh, or a tmux server started at boot): xclip and
+-- wl-copy cannot work, so yank via OSC 52. The escape travels through tmux
+-- (set-clipboard on) and ssh to the terminal you are typing in. Paste comes
+-- from Nvim's own register: OSC 52 reads are unsupported or prompt in most
+-- terminals and would stall every `p` until a timeout. Paste from the local
+-- clipboard with the terminal (Ctrl+Shift+V) instead.
+if vim.env.DISPLAY == nil and vim.env.WAYLAND_DISPLAY == nil then
+	local osc52 = require("vim.ui.clipboard.osc52")
+	local function paste()
+		return { vim.fn.split(vim.fn.getreg('"'), "\n"), vim.fn.getregtype('"') }
+	end
+	vim.g.clipboard = {
+		name = "OSC 52",
+		copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
+		paste = { ["+"] = paste, ["*"] = paste },
+	}
+end
+
 -- ─── Keymaps ──────────────────────────────────────────────────────────────────
 
 local map = function(mode, lhs, rhs, opts)

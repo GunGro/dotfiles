@@ -7,9 +7,6 @@ export HISTTIMEFORMAT='%F %T '
 # Write each command as it runs, so a crashed/killed shell loses nothing.
 PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
 
-export EDITOR=nvim
-export VISUAL=nvim
-
 set -o vi
 
 shopt -s checkwinsize # update LINES/COLUMNS after each command

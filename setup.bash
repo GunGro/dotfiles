@@ -373,6 +373,7 @@ gamedev_tools() {
 core_links() {
     link "bashrc" "$HOME/.bashrc"
     link "zshrc" "$HOME/.zshrc"
+    link "zshenv" "$HOME/.zshenv"
     link "inputrc" "$HOME/.inputrc"
     link "condarc" "$HOME/.condarc"
     link "bash" "$HOME/.config/bash"

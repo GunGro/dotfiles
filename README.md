@@ -8,7 +8,7 @@ a switch in an untracked local file, so you can take only the parts you want.
 
 | Part | Files | Highlights |
 | --- | --- | --- |
-| Shell | `bashrc`, `zshrc`, `shell/`, `bash/`, `zsh/` | vi line editing, zoxide, fzf/fzf-tab, atuin history, autosuggestions, syntax highlighting |
+| Shell | `bashrc`, `zshrc`, `zshenv`, `shell/`, `bash/`, `zsh/` | vi line editing, zoxide, fzf/fzf-tab, atuin history, autosuggestions, syntax highlighting |
 | Neovim (>= 0.11) | `nvim/` | lazy.nvim, native `vim.lsp` (clangd, vtsls, GDScript), blink.cmp, conform (formats changed lines only), DAP (codelldb, Godot), neotest, iron REPLs, Telescope, Harpoon |
 | tmux / kitty | `tmux/`, `kitty/` | `C-Space` prefix, vim-tmux-navigator, resurrect/continuum, Catppuccin Mocha |
 | Git | `git/` | many aliases, delta pager, LFS filter, global pre-commit hook (`git/template`) |

@@ -110,11 +110,18 @@ function machine_name() {
 # 16 = 1 (mod 5) that equals the sum of the hex digits mod 5.
 _pr_host_colors=(cyan green yellow red pink)
 _pr_machine="$(machine_name)"
+# The sha1sum fork costs ~4 ms per shell start, so the result is cached per
+# machine name in ~/.cache/zsh.
 () {
-    local hex d sum=0
+    local hex d sum=0 cache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/host-color-${_pr_machine//\//_}"
+    if [[ -r $cache ]]; then
+        _pr_host_color=$(<$cache)
+        (( ${_pr_host_colors[(Ie)$_pr_host_color]} )) && return
+    fi
     hex=${${"$(print -rn -- "$_pr_machine" | sha1sum)"}[1,40]}
     for d in ${(s::)hex}; do (( sum += 16#$d )); done
     _pr_host_color=$_pr_host_colors[$(( sum % ${#_pr_host_colors} + 1 ))]
+    mkdir -p "${cache:h}" 2>/dev/null && print -r -- "$_pr_host_color" >| "$cache" 2>/dev/null
 }
 
 RPR_SHOW_HOST=true # Set to false to disable host in rhs prompt

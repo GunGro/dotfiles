@@ -51,7 +51,7 @@ alias ...='cd ../..'
 # clear
 alias c='clear'
 # git
-alias gag='git exec ag'
+alias gag='git exec rg' # search from the repo root (ag is not installed; rg is)
 alias lg='lazygit'
 
 

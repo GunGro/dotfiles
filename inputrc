@@ -2,7 +2,12 @@
 # skips /etc/inputrc entirely once ~/.inputrc exists.
 $include /etc/inputrc
 
+# vi mode as cursor shape (as in zsh): beam in insert, block in normal mode.
+# \1 \2 mark the escapes as zero-width. Remove the two strings to get the
+# (ins)/(cmd) text markers back.
 set show-mode-in-prompt on
+set vi-ins-mode-string \1\e[6 q\2
+set vi-cmd-mode-string \1\e[2 q\2
 
 # Completion: list immediately instead of on the second Tab, colour by type,
 # mark directories/symlinks like `ls -F`.

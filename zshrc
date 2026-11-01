@@ -12,14 +12,9 @@ source "$HOME/.config/zsh/plugins_before.zsh"
 # Settings
 source "$HOME/.config/zsh/settings.zsh"
 
-# Shared functions (path_prepend etc.)
-source "$HOME/.config/shell/functions.sh"
-
-# User-local tools go on PATH before anything probes with `command -v`
-# (eza/btop aliases, zoxide, direnv, atuin), so a fresh login shell sees them.
-path_prepend "$HOME/.cargo/bin"
-path_prepend "$HOME/.atuin/bin"
-path_prepend "$HOME/.local/bin"
+# PATH, EDITOR and path_prepend etc. Already read via ~/.zshenv; again here
+# (idempotent) so the PATH order holds even if /etc/zsh/zprofile reset it.
+source "$HOME/.config/shell/env.sh"
 
 # Shared aliases
 source "$HOME/.config/shell/aliases.sh"

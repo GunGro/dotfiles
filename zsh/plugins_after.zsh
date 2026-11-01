@@ -6,7 +6,8 @@ source "$HOME/.config/shell/plugins_common.sh"
 # fzf-tab
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-zstyle ':completion:*' menu no
+# fzf-tab replaces the menu; without it the `menu select` from settings.zsh stays.
+[ -f "$HOME/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ] && zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath 2>/dev/null || ls -1 --color=always $realpath'
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
