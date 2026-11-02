@@ -115,15 +115,7 @@ History: commands are written as they run; duplicates of the previous line and l
 
 ### CMake
 
-| Alias | What it does |
-| --- | --- |
-| `cmake-init` | configure into `build/` with Ninja and `compile_commands.json` |
-| `cmake-build` | build |
-| `cmake-clean` | delete `build/` |
-| `cmake-rebuild` | clean, configure, build |
-| `cmake-link` | symlink `compile_commands.json` to the project root (for clangd) |
-| `cmake-fresh` | clean, configure, build, link |
-| `cmake-watch` | rebuild on every C/C++ file change (needs watchexec) |
+See the C++ section below (`cmb`, `cmt`, `cmwatch`, ...; on with `DOTFILES_CPP=1`).
 
 ### Git
 
@@ -225,7 +217,7 @@ General:
 | `Esc` | clear search highlighting |
 | `<` / `>` in visual mode | indent and keep the selection |
 | `A-j` / `A-k` | move the line or selection down / up |
-| `gcc` / `gc` in visual mode | toggle comments (Comment.nvim) |
+| `gcc` / `gc` in visual mode | toggle comments (built in) |
 
 Finding files (Telescope) and Harpoon:
 

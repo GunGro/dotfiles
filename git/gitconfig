@@ -151,7 +151,6 @@
 	# Cache untracked-file scans: the zsh prompt runs `git status` on every prompt.
 	untrackedCache = true
 	pager = delta
-	longpaths = true
 
 # Allow local customizations in the .gitconfig_local file
 [include]

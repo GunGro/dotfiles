@@ -22,3 +22,16 @@ path_prepend() {
     path_remove "$1"
     PATH="$1${PATH:+":$PATH"}"
 }
+
+# True if the terminal has >= 256 colours. Looked up once per shell; zsh reads
+# terminfo in-process, bash forks tput once.
+dot_256() {
+    if [ -z "${_dot_colors:-}" ]; then
+        if [ -n "${ZSH_VERSION:-}" ] && zmodload zsh/terminfo 2>/dev/null; then
+            _dot_colors=${terminfo[colors]:-0}
+        else
+            _dot_colors=$(tput colors 2>/dev/null || echo 0)
+        fi
+    fi
+    [ "$_dot_colors" -ge 256 ] 2>/dev/null
+}

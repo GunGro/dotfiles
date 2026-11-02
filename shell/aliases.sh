@@ -6,23 +6,6 @@ alias vim='nvim'
 alias vi='nvim'
 alias v='nvim'
 
-# Cmake / Build
-alias cmake-init='cmake -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
-alias cmake-build='cmake --build build'
-alias cmake-clean='rm -rf build'
-alias cmake-rebuild='cmake-clean && cmake-init && cmake-build'
-
-# Symlink compile_commands.json to project root (clangd needs it)
-alias cmake-link='ln -sf build/compile_commands.json .'
-
-# Full fresh configure + build + link in one shot
-alias cmake-fresh='cmake-clean && cmake-init && cmake-build && cmake-link'
-
-# Auto-rebuild on file change (requires watchexec)
-if command -v watchexec >/dev/null 2>&1; then
-    alias cmake-watch='watchexec -e cpp,h,hpp,cc -- cmake-build'
-fi
-
 # Listing (eza if available, plain ls fallback)
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --group-directories-first'

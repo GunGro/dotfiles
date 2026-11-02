@@ -30,7 +30,7 @@ fi
 # Keep your highlighting styles
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
 
-if (( ${+ZSH_HIGHLIGHT_STYLES} )) && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
+if (( ${+ZSH_HIGHLIGHT_STYLES} )) && dot_256; then
     ZSH_HIGHLIGHT_STYLES[default]=none
     ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=160
     ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=037,bold
