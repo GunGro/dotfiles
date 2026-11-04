@@ -419,6 +419,11 @@ local_files() {
             echo "    Created ~/.gitconfig_local (set your name and email)"
         fi
     fi
+    # Older examples set a placeholder identity, which beat useConfigOnly.
+    if [ -f "$HOME/.gitconfig_local" ] &&
+        [ "$(git config --file "$HOME/.gitconfig_local" user.email 2>/dev/null)" = you@example.com ]; then
+        echo "    WARNING: ~/.gitconfig_local still has the placeholder user.email; set or remove it" >&2
+    fi
 }
 
 # ─── Run ─────────────────────────────────────────────────────────────────────
