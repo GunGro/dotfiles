@@ -62,6 +62,7 @@ return {
 	-- ─── Statusline: Lualine ────────────────────────────────────────────────────
 	{
 		"nvim-lualine/lualine.nvim",
+		event = "VeryLazy",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("lualine").setup({
@@ -83,10 +84,14 @@ return {
 	},
 
 	-- ─── Git ──────────────────────────────────────────────────────────────────
-	{ "tpope/vim-fugitive", lazy = false },
+	{
+		"tpope/vim-fugitive",
+		cmd = { "G", "Git", "Gdiffsplit", "Gvdiffsplit", "Gread", "Gwrite", "Gedit", "GBrowse" },
+	},
 
 	{
 		"lewis6991/gitsigns.nvim",
+		event = { "BufReadPre", "BufNewFile" },
 		config = function()
 			require("gitsigns").setup({
 				signs = {
@@ -103,6 +108,7 @@ return {
 	-- ─── Telescope ────────────────────────────────────────────────────────────
 	{
 		"nvim-telescope/telescope.nvim",
+		cmd = "Telescope",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
@@ -127,28 +133,21 @@ return {
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
 		dependencies = { "nvim-lua/plenary.nvim" },
+		keys = function()
+			local h = function()
+				return require("harpoon")
+			end
+			local keys = {
+				{ "<leader>ha", function() h():list():add() end, desc = "Harpoon: add file" },
+				{ "<leader>hh", function() h().ui:toggle_quick_menu(h():list()) end, desc = "Harpoon: toggle menu" },
+			}
+			for i = 1, 4 do
+				table.insert(keys, { "<leader>" .. i, function() h():list():select(i) end, desc = "Harpoon: file " .. i })
+			end
+			return keys
+		end,
 		config = function()
-			local harpoon = require("harpoon")
-			harpoon:setup()
-
-			vim.keymap.set("n", "<leader>ha", function()
-				harpoon:list():add()
-			end, { desc = "Harpoon: add file" })
-			vim.keymap.set("n", "<leader>hh", function()
-				harpoon.ui:toggle_quick_menu(harpoon:list())
-			end, { desc = "Harpoon: toggle menu" })
-			vim.keymap.set("n", "<leader>1", function()
-				harpoon:list():select(1)
-			end, { desc = "Harpoon: file 1" })
-			vim.keymap.set("n", "<leader>2", function()
-				harpoon:list():select(2)
-			end, { desc = "Harpoon: file 2" })
-			vim.keymap.set("n", "<leader>3", function()
-				harpoon:list():select(3)
-			end, { desc = "Harpoon: file 3" })
-			vim.keymap.set("n", "<leader>4", function()
-				harpoon:list():select(4)
-			end, { desc = "Harpoon: file 4" })
+			require("harpoon"):setup()
 		end,
 	},
 
@@ -156,6 +155,7 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		branch = "main",
+		lazy = false, -- the main branch does not support lazy-loading
 		build = ":TSUpdate",
 		config = function()
 			local ts = require("nvim-treesitter")
@@ -320,6 +320,8 @@ return {
 	-- ─── Formatting ───────────────────────────────────────────────────────────
 	{
 		"stevearc/conform.nvim",
+		event = "BufWritePre",
+		cmd = { "ConformInfo", "FormatMode" },
 		dependencies = { "lewis6991/gitsigns.nvim" },
 		config = function()
 			local conform = require("conform")
@@ -402,6 +404,14 @@ return {
 			"rcarriga/nvim-dap-ui",
 			"nvim-neotest/nvim-nio",
 		},
+		keys = {
+			{ "<F5>", function() require("dap").continue() end, desc = "Debug: continue" },
+			{ "<F10>", function() require("dap").step_over() end, desc = "Debug: step over" },
+			{ "<F11>", function() require("dap").step_into() end, desc = "Debug: step into" },
+			{ "<F12>", function() require("dap").step_out() end, desc = "Debug: step out" },
+			{ "<leader>b", function() require("dap").toggle_breakpoint() end, desc = "Debug: breakpoint" },
+			{ "<leader>du", function() require("dapui").toggle() end, desc = "Debug: UI" },
+		},
 		config = function()
 			local dap = require("dap")
 			local dapui = require("dapui")
@@ -435,6 +445,19 @@ return {
 					cwd = "${workspaceFolder}",
 					stopOnEntry = false,
 					args = {},
+				},
+				-- WellTemp tree: bin/WellTemp (wtt builds it Release + -ffast-math,
+				-- so locals are often optimized out; use a Debug build for stepping)
+				{
+					name = "WellTemp",
+					type = "codelldb",
+					request = "launch",
+					program = "${workspaceFolder}/bin/WellTemp",
+					args = function()
+						return vim.split(vim.fn.input("Args: ", "", "file"), " ", { trimempty = true })
+					end,
+					cwd = "${workspaceFolder}",
+					stopOnEntry = false,
 				},
 			}
 			dap.configurations.c = dap.configurations.cpp
@@ -470,13 +493,8 @@ return {
 				}
 			end
 
-			-- Keymaps
-			vim.keymap.set("n", "<F5>", dap.continue)
-			vim.keymap.set("n", "<F10>", dap.step_over)
-			vim.keymap.set("n", "<F11>", dap.step_into)
-			vim.keymap.set("n", "<F12>", dap.step_out)
-			vim.keymap.set("n", "<leader>b", dap.toggle_breakpoint)
-			vim.keymap.set("n", "<leader>du", dapui.toggle)
+			-- Godot / GDExtension configs (lua/gamedev.lua)
+			require("gamedev").setup_dap(dap)
 		end,
 	},
 
@@ -491,6 +509,25 @@ return {
 			"orjangj/neotest-ctest",
 			"nvim-neotest/neotest-python",
 		},
+		keys = function()
+			local nt = function()
+				return require("neotest")
+			end
+			return {
+				{ "<leader>tn", function() nt().run.run() end, desc = "Test: nearest" },
+				{ "<leader>tf", function() nt().run.run(vim.fn.expand("%")) end, desc = "Test: file" },
+				{ "<leader>ta", function() nt().run.run(vim.fn.getcwd()) end, desc = "Test: all" },
+				{ "<leader>tl", function() nt().run.run_last() end, desc = "Test: last" },
+				{ "<leader>td", function() nt().run.run({ strategy = "dap" }) end, desc = "Test: debug nearest" },
+				{ "<leader>tx", function() nt().run.stop() end, desc = "Test: stop" },
+				{ "<leader>ts", function() nt().summary.toggle() end, desc = "Test: summary" },
+				{ "<leader>to", function() nt().output.open({ enter = true, auto_close = true }) end, desc = "Test: output" },
+				{ "<leader>tO", function() nt().output_panel.toggle() end, desc = "Test: output panel" },
+				{ "<leader>tw", function() nt().watch.toggle(vim.fn.expand("%")) end, desc = "Test: watch file" },
+				{ "[t", function() nt().jump.prev({ status = "failed" }) end, desc = "Prev failed test" },
+				{ "]t", function() nt().jump.next({ status = "failed" }) end, desc = "Next failed test" },
+			}
+		end,
 		config = function()
 			local neotest = require("neotest")
 			neotest.setup({
@@ -502,22 +539,6 @@ return {
 				output = { open_on_run = false },
 				quickfix = { open = false },
 			})
-
-			local map = function(lhs, fn, desc)
-				vim.keymap.set("n", lhs, fn, { desc = desc })
-			end
-			map("<leader>tn", function() neotest.run.run() end, "Test: nearest")
-			map("<leader>tf", function() neotest.run.run(vim.fn.expand("%")) end, "Test: file")
-			map("<leader>ta", function() neotest.run.run(vim.fn.getcwd()) end, "Test: all")
-			map("<leader>tl", function() neotest.run.run_last() end, "Test: last")
-			map("<leader>td", function() neotest.run.run({ strategy = "dap" }) end, "Test: debug nearest")
-			map("<leader>tx", function() neotest.run.stop() end, "Test: stop")
-			map("<leader>ts", function() neotest.summary.toggle() end, "Test: summary")
-			map("<leader>to", function() neotest.output.open({ enter = true, auto_close = true }) end, "Test: output")
-			map("<leader>tO", function() neotest.output_panel.toggle() end, "Test: output panel")
-			map("<leader>tw", function() neotest.watch.toggle(vim.fn.expand("%")) end, "Test: watch file")
-			map("[t", function() neotest.jump.prev({ status = "failed" }) end, "Prev failed test")
-			map("]t", function() neotest.jump.next({ status = "failed" }) end, "Next failed test")
 		end,
 	},
 
@@ -569,10 +590,13 @@ return {
 
 	{
 		"stevearc/overseer.nvim",
+		cmd = { "OverseerRun", "OverseerToggle", "OverseerOpen" },
+		keys = {
+			{ "<leader>or", "<cmd>OverseerRun<cr>", desc = "Overseer run task" },
+			{ "<leader>ot", "<cmd>OverseerToggle<cr>", desc = "Overseer toggle panel" },
+		},
 		config = function()
 			require("overseer").setup()
-			vim.keymap.set("n", "<leader>or", "<cmd>OverseerRun<cr>", { desc = "Overseer run task" })
-			vim.keymap.set("n", "<leader>ot", "<cmd>OverseerToggle<cr>", { desc = "Overseer toggle panel" })
 		end,
 	},
 
@@ -598,6 +622,14 @@ return {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-telescope/telescope.nvim",
 		},
+		cmd = { "CodeCompanion", "CodeCompanionChat", "CodeCompanionActions" },
+		keys = {
+			{ "<leader>ai", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n", "v" }, desc = "AI chat panel" },
+			{ "<leader>aa", "<cmd>CodeCompanionActions<cr>", mode = { "n", "v" }, desc = "AI actions" },
+			{ "<leader>ae", "<cmd>CodeCompanion /explain<cr>", mode = "v", desc = "AI explain selection" },
+			{ "<leader>ar", "<cmd>CodeCompanion /review<cr>", mode = "v", desc = "AI review selection" },
+			{ "<leader>af", "<cmd>CodeCompanion /fix<cr>", mode = "v", desc = "AI fix selection" },
+		},
 		config = function()
 			require("codecompanion").setup({
 				-- Reads OPENAI_API_KEY from env, or set api_key directly below.
@@ -616,26 +648,14 @@ return {
 					chat = { window = { layout = "vertical", width = 0.35 } },
 				},
 			})
-
-			-- Keymaps
-			vim.keymap.set({ "n", "v" }, "<leader>ai", "<cmd>CodeCompanionChat Toggle<cr>", { desc = "AI chat panel" })
-			vim.keymap.set({ "n", "v" }, "<leader>aa", "<cmd>CodeCompanionActions<cr>", { desc = "AI actions" })
-			vim.keymap.set("v", "<leader>ae", "<cmd>CodeCompanion /explain<cr>", { desc = "AI explain selection" })
-			vim.keymap.set("v", "<leader>ar", "<cmd>CodeCompanion /review<cr>", { desc = "AI review selection" })
-			vim.keymap.set("v", "<leader>af", "<cmd>CodeCompanion /fix<cr>", { desc = "AI fix selection" })
 		end,
 	},
 
 	-- ─── Quality of life ──────────────────────────────────────────────────────
-	{
-		"numToStr/Comment.nvim",
-		config = function()
-			require("Comment").setup()
-		end,
-	},
-
+	-- Comments: Neovim's built-in gc/gcc (>= 0.10) replaced Comment.nvim.
 	{
 		"windwp/nvim-autopairs",
+		event = "InsertEnter",
 		config = function()
 			require("nvim-autopairs").setup()
 		end,
@@ -644,6 +664,7 @@ return {
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
+		event = { "BufReadPost", "BufNewFile" },
 		config = function()
 			require("ibl").setup()
 		end,

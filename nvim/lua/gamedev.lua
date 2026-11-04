@@ -139,8 +139,8 @@ end
 
 -- ─── Debugging ───────────────────────────────────────────────────────────────
 
-local ok_dap, dap = pcall(require, "dap")
-if ok_dap then
+-- Called from the nvim-dap config in plugins.lua, so dap stays lazy.
+function M.setup_dap(dap)
 	-- GDScript: Godot editor's debug adapter (Editor Settings → Network → Debug Adapter, port 6006).
 	dap.adapters.godot = {
 		type = "server",
@@ -196,15 +196,15 @@ if ok_dap then
 		},
 	})
 	dap.configurations.c = dap.configurations.cpp
-
-	vim.keymap.set("n", "<leader>B", function()
-		dap.set_breakpoint(vim.fn.input("Condition: "))
-	end, { desc = "Conditional breakpoint" })
-	-- <leader>D… (<leader>d… is the DAP UI toggle in plugins.lua)
-	vim.keymap.set("n", "<leader>Dl", dap.run_last, { desc = "DAP run last" })
-	vim.keymap.set("n", "<leader>Dr", dap.repl.toggle, { desc = "DAP REPL" })
-	vim.keymap.set("n", "<leader>Dt", dap.terminate, { desc = "DAP terminate" })
 end
+
+vim.keymap.set("n", "<leader>B", function()
+	require("dap").set_breakpoint(vim.fn.input("Condition: "))
+end, { desc = "Conditional breakpoint" })
+-- <leader>D… (<leader>d… is the DAP UI toggle in plugins.lua)
+vim.keymap.set("n", "<leader>Dl", function() require("dap").run_last() end, { desc = "DAP run last" })
+vim.keymap.set("n", "<leader>Dr", function() require("dap").repl.toggle() end, { desc = "DAP REPL" })
+vim.keymap.set("n", "<leader>Dt", function() require("dap").terminate() end, { desc = "DAP terminate" })
 
 -- ─── Run keymaps ─────────────────────────────────────────────────────────────
 

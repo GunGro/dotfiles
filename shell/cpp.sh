@@ -14,9 +14,16 @@ if command -v ccache >/dev/null 2>&1; then
     export CMAKE_C_COMPILER_LAUNCHER="${CMAKE_C_COMPILER_LAUNCHER:-ccache}"
     export CMAKE_CXX_COMPILER_LAUNCHER="${CMAKE_CXX_COMPILER_LAUNCHER:-ccache}"
 fi
-export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:-$(nproc 2>/dev/null || echo 4)}"
+# CPU count without forking nproc: "online" is "0-N" on most machines.
+if read -r _cx_cpus 2>/dev/null </sys/devices/system/cpu/online && [ "${_cx_cpus#*,}" = "$_cx_cpus" ]; then
+    _cx_cpus=$((${_cx_cpus##*-} + 1))
+else
+    _cx_cpus=$(nproc 2>/dev/null || echo 4)
+fi
+export CMAKE_BUILD_PARALLEL_LEVEL="${CMAKE_BUILD_PARALLEL_LEVEL:-$_cx_cpus}"
 export CTEST_OUTPUT_ON_FAILURE=1
 export CTEST_PARALLEL_LEVEL="${CTEST_PARALLEL_LEVEL:-$CMAKE_BUILD_PARALLEL_LEVEL}"
+unset _cx_cpus
 
 # Readable ASan/UBSan reports by default.
 export ASAN_OPTIONS="${ASAN_OPTIONS:-detect_leaks=1:abort_on_error=1:strict_string_checks=1}"

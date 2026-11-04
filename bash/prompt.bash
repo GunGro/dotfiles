@@ -37,7 +37,7 @@ __pr_capture() {
 # name-rev only on a detached HEAD). Bash has no async prompt, so in a huge
 # repo turn it off with PR_SHOW_GIT=false.
 PR_SHOW_GIT=${PR_SHOW_GIT:-true}
-if [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
+if dot_256; then
     printf -v __pr_cv '\001\e[38;5;%sm\002' 61  # violet
     printf -v __pr_ct '\001\e[38;5;%sm\002' 41  # teal
     printf -v __pr_co '\001\e[38;5;%sm\002' 166 # orange

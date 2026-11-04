@@ -15,7 +15,7 @@ setopt prompt_subst
 autoload -U colors && colors
 
 # Make using 256 colors easier
-if command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 256 ]; then
+if dot_256; then
     source ~/.config/zsh/plugins/spectrum.zsh
     
     # change default colors
