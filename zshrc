@@ -59,4 +59,9 @@ if [ -f "$HOME/.config/zsh/local_changes.zsh" ]; then
     source "$HOME/.config/zsh/local_changes.zsh"
 fi
 
-[[ -n $ZDOT_PROF ]] && zprof
+if [[ -n $ZDOT_PROF ]]; then zprof; fi
+
+# The first prompt shows the exit status of the last command run here (the
+# old `[[ -n $ZDOT_PROF ]] && zprof` left 1, hence a red `!` in every new
+# shell). End on success whatever the local files above returned.
+true

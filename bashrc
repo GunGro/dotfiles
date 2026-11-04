@@ -62,3 +62,6 @@ fi
 if [ -f "$HOME/.config/bash/local_changes.bash" ]; then
     source "$HOME/.config/bash/local_changes.bash"
 fi
+
+# The first prompt's `!` reads the exit status of the last command here.
+true
