@@ -31,7 +31,8 @@ bash ~/dotfiles/setup.bash                  # core + dev
 | `--dev` | cmake, ninja, clang/clangd, gdb/lldb, ccache, mold, git-lfs, node, rust, typos, yq, watchexec; debugger configs and git hooks |
 | `--ai` | aichat with a key-less config template, Ollama |
 | `--gamedev` | perf, hotspot, heaptrack, systemd-coredump, gdtoolkit, visidata, the Godot editor bridge; Godot itself with `GODOT_VER=4.x.y-stable` |
-| `--all` | all of the above |
+| `--gaming` | Lutris (Flatpak) for Windows games via GE-Proton/umu, gamemode, vulkan-tools; checks the GPU driver; prefixes in `GAMES_DIR` (default `/srv/data/games`). Not in `--all` |
+| `--all` | all of the above except `--gaming` |
 | `--links-only` | only the symlinks (use on other distros after installing tools yourself) |
 | `--dry-run` | print the plan, change nothing |
 
@@ -46,6 +47,27 @@ Try it without touching your machine:
 docker run --rm -it -v "$PWD":/root/dotfiles ubuntu:24.04 \
     bash -c 'apt-get update -qq && apt-get install -y -qq sudo git curl && bash /root/dotfiles/setup.bash && exec zsh'
 ```
+
+## Gaming (World of Warcraft)
+
+`bash setup.bash --gaming` (add `--dry-run` first to see the plan). Then, once:
+
+1. Open Lutris, search "Battle.net", pick the standard installer, and set the
+   prefix to `$GAMES_DIR/battlenet` (default `/srv/data/games/battlenet`).
+   Runner: Wine with the default GE-Proton (Lutris runs it through umu).
+2. Log in and install WoW from Battle.net into that prefix. If the Battle.net
+   window is black or flickers, turn off "Use browser hardware acceleration" in
+   its settings.
+3. In WoW: Graphics API DirectX 12 (VKD3D-Proton). If you see stutter or
+   artifacts, try "DirectX 11 Legacy" (DXVK). The first minutes in a new zone
+   stutter while shaders are compiled; the cache stays in the prefix.
+4. Right-click the game in Lutris to create a desktop/menu shortcut, and enable
+   Feral GameMode in its system options.
+
+After an NVIDIA driver upgrade, run `flatpak update --user` so the Flatpak GL
+extension matches the new driver, or Lutris falls back to software rendering.
+Back up the prefix with the rest of `/srv/data`; addons live in
+`<prefix>/drive_c/Program Files (x86)/World of Warcraft/_retail_/Interface/AddOns`.
 
 ## Local, untracked files
 
