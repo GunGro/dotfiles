@@ -58,21 +58,99 @@ vim.opt.showmode = false -- lualine handles this
 -- Clipboard
 vim.opt.clipboard = "unnamedplus"
 
--- No X/Wayland display (ssh, or a tmux server started at boot): xclip and
--- wl-copy cannot work, so yank via OSC 52. The escape travels through tmux
--- (set-clipboard on) and ssh to the terminal you are typing in. Paste comes
--- from Nvim's own register: OSC 52 reads are unsupported or prompt in most
--- terminals and would stall every `p` until a timeout. Paste from the local
--- clipboard with the terminal (Ctrl+Shift+V) instead.
-if vim.env.DISPLAY == nil and vim.env.WAYLAND_DISPLAY == nil then
+-- Provider: wl-copy/xclip when a display works, OSC 52 otherwise. A tmux
+-- server outlives logins, so its panes can hold a DISPLAY whose cookie is gone
+-- (XAUTHORITY under GNOME/Xwayland is a new random file per login): xclip then
+-- fails with "Authorization required". On failure we pull DISPLAY, XAUTHORITY
+-- and WAYLAND_DISPLAY of the current tmux client and retry once, then fall
+-- back to OSC 52 (through tmux set-clipboard and ssh to the terminal you type
+-- in) for the rest of the session. Over ssh we go straight to OSC 52. OSC 52
+-- paste comes from Nvim's own register: terminal reads are unsupported or
+-- prompt, so paste the local clipboard with the terminal (Ctrl+Shift+V).
+do
 	local osc52 = require("vim.ui.clipboard.osc52")
-	local function paste()
-		return { vim.fn.split(vim.fn.getreg('"'), "\n"), vim.fn.getregtype('"') }
+	local selection = { ["+"] = "clipboard", ["*"] = "primary" }
+	local use_system = not (vim.env.SSH_TTY or vim.env.SSH_CONNECTION)
+
+	local function refresh_env()
+		if not vim.env.TMUX then
+			return
+		end
+		for _, name in ipairs({ "DISPLAY", "XAUTHORITY", "WAYLAND_DISPLAY" }) do
+			local r = vim.system({ "tmux", "show-environment", name }, { text = true }):wait()
+			if r.code == 0 then
+				local val = r.stdout:match("^" .. name .. "=(.-)\n?$")
+				vim.env[name] = val -- "-NAME" (removed) gives nil
+			end
+		end
 	end
+
+	local function tool(reg, paste)
+		if vim.env.WAYLAND_DISPLAY and vim.fn.executable("wl-copy") == 1 then
+			local cmd = paste and { "wl-paste", "--no-newline" } or { "wl-copy", "--type", "text/plain" }
+			if reg == "*" then
+				table.insert(cmd, "--primary")
+			end
+			return cmd
+		elseif vim.env.DISPLAY and vim.fn.executable("xclip") == 1 then
+			return { "xclip", paste and "-o" or "-i", "-selection", selection[reg] }
+		end
+	end
+
+	-- xclip/wl-copy fork a child that owns the selection; the parent exits 0
+	-- once it is set and non-zero when the display is unusable.
+	local function system_copy(reg, text)
+		local cmd = tool(reg, false)
+		if not cmd then
+			return false
+		end
+		local ok, r = pcall(function()
+			return vim.system(cmd, { stdin = text, stdout = false, stderr = false, timeout = 2000 }):wait()
+		end)
+		return ok and r.code == 0
+	end
+
+	local function copy(reg)
+		local fallback = osc52.copy(reg)
+		return function(lines, regtype)
+			if use_system then
+				local text = table.concat(lines, "\n") .. (regtype == "V" and "\n" or "")
+				if system_copy(reg, text) then
+					return
+				end
+				refresh_env()
+				if system_copy(reg, text) then
+					return
+				end
+				use_system = false
+				vim.notify("clipboard: no usable display, yanking via OSC 52", vim.log.levels.WARN)
+			end
+			fallback(lines, regtype)
+		end
+	end
+
+	local function paste(reg)
+		return function()
+			local cmd = use_system and tool(reg, true)
+			if cmd then
+				local r = vim.system(cmd, { text = true, timeout = 2000 }):wait()
+				if r.code == 0 then
+					local lines = vim.split(r.stdout, "\n", { plain = true })
+					if #lines > 1 and lines[#lines] == "" then
+						table.remove(lines)
+						return { lines, "V" }
+					end
+					return { lines, "v" }
+				end
+			end
+			return { vim.fn.split(vim.fn.getreg('"'), "\n"), vim.fn.getregtype('"') }
+		end
+	end
+
 	vim.g.clipboard = {
-		name = "OSC 52",
-		copy = { ["+"] = osc52.copy("+"), ["*"] = osc52.copy("*") },
-		paste = { ["+"] = paste, ["*"] = paste },
+		name = "system or OSC 52",
+		copy = { ["+"] = copy("+"), ["*"] = copy("*") },
+		paste = { ["+"] = paste("+"), ["*"] = paste("*") },
 	}
 end
 
