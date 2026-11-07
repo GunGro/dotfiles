@@ -51,7 +51,7 @@ docker run --rm -it -v "$PWD":/root/dotfiles ubuntu:24.04 \
 
 | File | Use |
 | --- | --- |
-| `shell/local_env.sh` | switches read first by both shells (created from `local_env.sh.example`): `DOTFILES_CPP=1`, `DOTFILES_GAMEDEV=1`, `DOTFILES_PERSONAL=1`, `CONDA_ROOT=…`, `GODOT=…` |
+| `shell/local_env.sh` | switches read first by both shells (created from `local_env.sh.example`): `DOTFILES_CPP=1`, `DOTFILES_GAMEDEV=1`, `DOTFILES_PERSONAL=1`, `GODOT=…` |
 | `shell/local.d/*.sh` | anything machine- or project-specific; every file is sourced |
 | `shell/local_{aliases,functions,changes}.sh` | shared by Bash and Zsh |
 | `{bash,zsh}/local_{aliases,functions,changes}.{bash,zsh}` | per shell |
@@ -100,7 +100,7 @@ Keys in the Zsh prompt:
 | `Tab` | fzf-tab completion menu; `cd` previews the directory, `<` and `>` switch completion groups |
 | `→` | accept the grey zsh-autosuggestion (from history, then completion) |
 
-Also loaded: direnv (a `.envrc` in a directory is loaded when you cd into it; run `direnv allow` once per file) and conda (its hook runs on the first `conda …`, so it costs nothing at startup).
+Also loaded: direnv (a `.envrc` in a directory is loaded when you cd into it; run `direnv allow` once per file).
 
 History: commands are written as they run; duplicates of the previous line and lines starting with a space are not saved (use that for commands containing secrets).
 

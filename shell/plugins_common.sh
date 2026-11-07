@@ -73,8 +73,5 @@ if _dot_which atuin; then
     _dot_cache atuin "$_dot_w" atuin init "$_dot_sh" && . "$_dot_f"
 fi
 
-# conda: defined lazily (first `conda ...` runs the hook)
-source "$HOME/.config/shell/conda.sh"
-
 unset _dot_sh _dot_w _dot_f
 unset -f _dot_which _dot_cache

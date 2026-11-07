@@ -375,7 +375,6 @@ core_links() {
     link "zshrc" "$HOME/.zshrc"
     link "zshenv" "$HOME/.zshenv"
     link "inputrc" "$HOME/.inputrc"
-    link "condarc" "$HOME/.condarc"
     link "bash" "$HOME/.config/bash"
     link "zsh" "$HOME/.config/zsh"
     link "shell" "$HOME/.config/shell"

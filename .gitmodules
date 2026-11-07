@@ -7,9 +7,6 @@
 [submodule "shell/plugins/dircolors-solarized"]
 	path = shell/plugins/dircolors-solarized
 	url = https://github.com/seebi/dircolors-solarized.git
-[submodule "zsh/plugins/conda-zsh-completion"]
-	path = zsh/plugins/conda-zsh-completion
-	url = https://github.com/esc/conda-zsh-completion.git
 [submodule "zsh/plugins/zsh-autosuggestions"]
 	path = zsh/plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
