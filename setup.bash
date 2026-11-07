@@ -14,6 +14,9 @@
 #   ai       aichat (+ config template), Ollama
 #   gamedev  Godot helpers: perf/hotspot/heaptrack, systemd-coredump, gdtoolkit,
 #            visidata, godot-nvim bridge; Godot itself with GODOT_VER=4.x.y-stable
+#   gaming   Windows games via Lutris (Flatpak, GE-Proton/umu, DXVK/VKD3D):
+#            driver/Vulkan check, gamemode, prefixes under GAMES_DIR
+#            (default /srv/data/games). Not part of --all.
 #
 # Re-running is safe: installed tools are skipped, existing files are backed up
 # to *.bak.<timestamp> before being replaced by symlinks.
@@ -27,11 +30,11 @@ DRY=0
 LINKS_ONLY=0
 MODULES=()
 
-usage() { sed -n '2,19p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        --core | --dev | --ai | --gamedev) MODULES+=("${1#--}") ;;
+        --core | --dev | --ai | --gamedev | --gaming) MODULES+=("${1#--}") ;;
         --all) MODULES=(core dev ai gamedev) ;;
         --links-only) LINKS_ONLY=1 ;;
         -n | --dry-run) DRY=1 ;;
@@ -189,6 +192,10 @@ dev_packages() {
 gamedev_packages() {
     apt_add hotspot heaptrack heaptrack-gui systemd-coredump ipython3 \
         linux-tools-common "linux-tools-$(uname -r)"
+}
+
+gaming_packages() {
+    apt_add flatpak vulkan-tools gamemode
 }
 
 # ─── Modules: tools ──────────────────────────────────────────────────────────
@@ -368,6 +375,50 @@ gamedev_tools() {
     fi
 }
 
+GAMES_DIR="${GAMES_DIR:-/srv/data/games}"
+LUTRIS=net.lutris.Lutris
+
+gaming_tools() {
+    # Proprietary NVIDIA driver: Proton needs it (nouveau has no usable Vulkan).
+    if lspci 2>/dev/null | grep -qi 'vga.*nvidia'; then
+        if nvidia-smi >/dev/null 2>&1; then
+            say "NVIDIA driver $(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1)"
+        else
+            warn "NVIDIA GPU without a working driver; run: sudo ubuntu-drivers install, then reboot"
+        fi
+    fi
+    if command -v vulkaninfo >/dev/null 2>&1 && ! vulkaninfo --summary >/dev/null 2>&1; then
+        warn "vulkaninfo fails: Proton (DXVK/VKD3D) will not run until Vulkan works"
+    fi
+
+    if [ "$DRY" = 1 ]; then
+        echo "    would add flathub (--user), install $LUTRIS, grant $GAMES_DIR"
+    elif ! command -v flatpak >/dev/null 2>&1; then
+        warn "flatpak missing; skipping Lutris"
+        return 0
+    else
+        flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        if ! flatpak info --user "$LUTRIS" >/dev/null 2>&1; then
+            say "Installing Lutris (Flatpak)..."
+            flatpak install --user -y --noninteractive flathub "$LUTRIS"
+        fi
+        # Also pulls the GL.nvidia-<version> runtime extension that matches the
+        # host driver; rerun after every NVIDIA driver upgrade.
+        flatpak update --user -y --noninteractive
+    fi
+
+    if [ ! -d "$GAMES_DIR" ]; then
+        if [ -w "$(dirname "$GAMES_DIR")" ]; then
+            [ "$DRY" = 1 ] || mkdir -p "$GAMES_DIR"
+        else
+            echo "    NOTE: create the games dir, then rerun with --gaming:"
+            echo "          sudo install -d -o $(id -un) -g $(id -gn) $GAMES_DIR"
+            return 0
+        fi
+    fi
+    [ "$DRY" = 1 ] || flatpak override --user --filesystem="$GAMES_DIR" "$LUTRIS"
+}
+
 # ─── Modules: links ──────────────────────────────────────────────────────────
 
 core_links() {
@@ -465,4 +516,5 @@ echo "    - Edit shell/local_env.sh to turn on optional parts (game dev env, per
 echo "    - Start tmux and nvim once: plugins install on first launch."
 if has_module ai; then echo "    - aichat: edit ~/.config/aichat/config.yaml or export your API key."; fi
 if has_module gamedev; then echo "    - Godot: Editor Settings → Text Editor → External: ~/.local/bin/godot-nvim, flags '{file} {line} {col}'."; fi
+if has_module gaming; then echo "    - Lutris: install Battle.net with prefix $GAMES_DIR/battlenet (see README, Gaming)."; fi
 if has_module dev; then echo "    - Run 'git init' once in existing repos to install the global pre-commit hook."; fi
